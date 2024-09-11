@@ -1,6 +1,6 @@
 plugins {
-	id 'java' // Common plugin for all modules
-	id 'org.springframework.boot' version "$springbootVersion" apply false // Apply false to not automatically apply to subprojects
+	id 'java'
+	id 'org.springframework.boot' version "$springbootVersion" apply false
 	id 'io.spring.dependency-management' version '1.1.6' apply false
 	id "com.diffplug.spotless" version "$spotlessVersion" apply false
 	id "org.sonarqube" version "4.4.1.3373"
@@ -18,9 +18,6 @@ java {
 allprojects {
 	group = 'com.blockchain'
 	repositories {
-		jacoco {
-			toolVersion = "0.8.5"
-		}
 		mavenCentral()
 	}
 }
@@ -29,8 +26,30 @@ jacoco {
 	toolVersion = "0.8.8"
 }
 
-jacocoTestReport {
-	dependsOn test
+// Aggregate Jacoco reports from all subprojects
+tasks.register('jacocoRootReport', JacocoReport) {
+	dependsOn subprojects.test
+
+	executionData fileTree(dir: project.buildDir, includes: [
+			'../api/build/jacoco/test.exec',
+			'../app/build/jacoco/test.exec'
+	])
+
+	subprojects {
+		sourceSets {
+			main {
+				java {
+					srcDirs = files(sourceSets.main.allSource.srcDirs)
+				}
+			}
+		}
+	}
+
+	reports {
+		xml.required = true
+		html.destination file("$buildDir/reports/jacocoRootReport/html")
+		xml.destination file("$buildDir/reports/jacocoRootReport/jacocoTestReport.xml")
+	}
 }
 
 sonar {
@@ -38,13 +57,14 @@ sonar {
 		property "sonar.projectKey", "Puneethkumarck_crypto-api"
 		property "sonar.organization", "ranganathasoftware"
 		property "sonar.host.url", "https://sonarcloud.io"
-		property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.outputLocation.get()
+		// Use the aggregated Jacoco XML report
+		property "sonar.coverage.jacoco.xmlReportPaths", "$buildDir/reports/jacocoRootReport/jacocoTestReport.xml"
 	}
 }
 
-
 subprojects {
 	apply plugin: 'java'
+	apply plugin: 'jacoco'
 	apply plugin: 'io.spring.dependency-management'
 	apply plugin: 'com.diffplug.spotless'
 
@@ -81,5 +101,12 @@ subprojects {
 
 	tasks.named('test') {
 		useJUnitPlatform()
+		finalizedBy jacocoTestReport
+	}
+
+	jacocoTestReport {
+		reports {
+			xml.required = true
+		}
 	}
 }
