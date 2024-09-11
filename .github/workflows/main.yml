@@ -8,50 +8,33 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    name: Build, Test, and Analyze
+  build-and-analyze:
+    name: Build and Analyze
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout the repository
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
 
-      # Set up JDK 21
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: 21
-          distribution: 'temurin' # Alternative distribution options are available
+          distribution: 'temurin'
+          java-version: '21'
 
-      # Cache SonarCloud packages
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+      - name: Run Spotless to fix formatting issues
+        run: ./gradlew :api:spotlessApply
 
-      # Cache Gradle packages
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+      - name: Build with Gradle
+        run: ./gradlew build jacocoTestReport --info
 
-      # Build the project
-      - name: Build the project
-        run: ./gradlew build --info
+      - name: Verify JaCoCo Report Exists for app
+        run: ls -l app/build/reports/jacoco/test/jacocoTestReport.xml
 
-      # Run tests
-      - name: Run tests
-        run: ./gradlew test --info
+      - name: Verify JaCoCo Report Exists for api
+        run: ls -l api/build/reports/jacoco/test/jacocoTestReport.xml
 
-      # SonarQube analysis
-      - name: Run SonarQube analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.0.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube --info
