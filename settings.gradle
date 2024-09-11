@@ -1,0 +1,4 @@
+rootProject.name = 'crypto-api'
+include 'api'
+include 'app'
+

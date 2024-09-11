@@ -1,0 +1,52 @@
+plugins {
+	id 'java' // Common plugin for all modules
+	id 'org.springframework.boot' version "$springbootVersion" apply false // Apply false to not automatically apply to subprojects
+	id 'io.spring.dependency-management' version '1.1.6' apply false
+	id "com.diffplug.spotless" version "$spotlessVersion" apply false
+}
+
+group = 'com.blockchain'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+allprojects {
+	repositories {
+		mavenCentral()
+	}
+}
+
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'io.spring.dependency-management'
+	apply plugin: 'com.diffplug.spotless'
+
+	dependencies {
+		testCompileOnly 'org.projectlombok:lombok'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+		testImplementation 'org.junit.jupiter:junit-jupiter'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	}
+
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework.boot:spring-boot-dependencies:3.3.3"
+			mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+		}
+	}
+
+	spotless {
+		java {
+			googleJavaFormat() // Use Google's Java style
+		}
+	}
+
+	tasks.named('test') {
+		useJUnitPlatform()
+	}
+}
