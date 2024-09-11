@@ -70,6 +70,6 @@ jobs:
             -Dsonar.tests=app/src/test,api/src/test
             -Dsonar.verbose=true
       - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@<action version> # Ex: v2.1.0, See the latest version at https://github.com/marketplace/actions/sonarcloud-scan
+        uses: SonarSource/sonarcloud-github-action@v3.0.0 # Ex: v2.1.0, See the latest version at https://github.com/marketplace/actions/sonarcloud-scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
