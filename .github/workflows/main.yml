@@ -56,6 +56,18 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew sonarqube --info
 
+  directory:
+    name: Check Directory Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check Directory Structure
+        run: |
+          ls -R api/src
+          ls -R app/src
+
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
@@ -67,3 +79,6 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v3.0.0 # Ex: v2.1.0, See the latest version at https://github.com/marketplace/actions/sonarcloud-scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+
