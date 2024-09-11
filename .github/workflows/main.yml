@@ -82,6 +82,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: Run Spotless to fix formatting issues
+        run: ./gradlew :api:spotlessApply
+
       - name: Build with Gradle
         run: ./gradlew build
 
