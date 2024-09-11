@@ -3,6 +3,8 @@ plugins {
 	id 'org.springframework.boot' version "$springbootVersion" apply false // Apply false to not automatically apply to subprojects
 	id 'io.spring.dependency-management' version '1.1.6' apply false
 	id "com.diffplug.spotless" version "$spotlessVersion" apply false
+	id "org.sonarqube" version "3.5.0.2730”
+	id 'jacoco'
 }
 
 group = 'com.blockchain'
@@ -18,7 +20,26 @@ allprojects {
 	repositories {
 		mavenCentral()
 	}
-}
+
+	jacocoTestReport {
+		reports {
+			xml.enabled = true
+			csv.enabled = false
+			xml.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+		}
+	}
+
+	project.tasks['sonarqube'].dependsOn jacocoTestReport
+
+	sonarqube {
+		properties {
+			property "sonar.projectKey", "Puneethkumarck_eurovision-voting-api"
+			property "sonar.organization", "ranganathasoftware"
+			property "sonar.host.url", "https://sonarcloud.io"
+			property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
+		}
+
+	}
 
 subprojects {
 	apply plugin: 'java'
