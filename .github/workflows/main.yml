@@ -45,9 +45,9 @@ jobs:
       - name: Build the project
         run: ./gradlew build --info
 
-      # Run tests
-      - name: Run tests
-        run: ./gradlew test --info
+      # Run tests and generate Jacoco report
+      - name: Run tests and generate coverage report
+        run: ./gradlew test jacocoTestReport --info
 
       # SonarQube analysis
       - name: Run SonarQube analysis
