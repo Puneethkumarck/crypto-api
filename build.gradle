@@ -26,8 +26,6 @@ jacoco {
 	toolVersion = "0.8.12"
 }
 
-
-
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'jacoco'

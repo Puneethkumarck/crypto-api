@@ -86,7 +86,13 @@ jobs:
         run: ./gradlew :api:spotlessApply
 
       - name: Build with Gradle
-        run: ./gradlew build jacocoTestReport
+        run: ./gradlew build jacocoTestReport --info
+
+      - name: Verify JaCoCo Report Exists for app
+        run: ls -l app/build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Verify JaCoCo Report Exists for api
+        run: ls -l api/build/reports/jacoco/test/jacocoTestReport.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v3.0.0
