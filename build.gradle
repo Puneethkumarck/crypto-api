@@ -3,7 +3,7 @@ plugins {
 	id 'org.springframework.boot' version "$springbootVersion" apply false // Apply false to not automatically apply to subprojects
 	id 'io.spring.dependency-management' version '1.1.6' apply false
 	id "com.diffplug.spotless" version "$spotlessVersion" apply false
-	id "org.sonarqube" version "5.1.0.4882"
+	id "org.sonarqube" version "4.4.1.3373"
 	id 'jacoco'
 }
 
@@ -36,10 +36,12 @@ jacocoTestReport {
 sonar {
 	properties {
 		property "sonar.projectKey", "Puneethkumarck_crypto-api"
+		property "sonar.organization", "ranganathasoftware"
 		property "sonar.host.url", "https://sonarcloud.io"
 		property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.outputLocation.get()
 	}
 }
+
 
 subprojects {
 	apply plugin: 'java'
