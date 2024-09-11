@@ -60,10 +60,16 @@ jobs:
     name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          args: >
+            -Dsonar.projectKey=Puneethkumarck_crypto-api
+            -Dsonar.organization=ranganathasoftware
+            -Dsonar.sources=app/src/main,api/src/main
+            -Dsonar.tests=app/src/test,api/src/test
+            -Dsonar.verbose=true
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: sonarsource/sonarcloud-github-action@<action version> # Ex: v2.1.0, See the latest version at https://github.com/marketplace/actions/sonarcloud-scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
