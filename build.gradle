@@ -22,6 +22,12 @@ allprojects {
 	}
 }
 
+jacoco {
+	toolVersion = "0.8.12"
+}
+
+
+
 subprojects {
 	apply plugin: 'java'
 	apply plugin: 'jacoco'
@@ -59,17 +65,16 @@ subprojects {
 		}
 	}
 
+	jacocoTestReport {
+		dependsOn test
+		reports {
+			xml.required = true
+			html.required = false
+		}
+	}
+
 	tasks.named('test') {
 		useJUnitPlatform()
 		finalizedBy jacocoTestReport
 	}
-
-	sonarqube {
-		properties {
-			// Paths are relative to the module's base directory
-			property "sonar.sources", "src/main/java"
-			property "sonar.tests", "src/test/java"
-		}
-	}
-
 }
