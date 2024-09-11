@@ -1,0 +1,9 @@
+rpc:
+  client:
+    base:
+      solana:
+        url: "https://api.devnet.solana.com"
+
+  logging:
+    level:
+      "com.github.tomakehurst.wiremock": "TRACE"
