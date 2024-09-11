@@ -63,4 +63,13 @@ subprojects {
 		useJUnitPlatform()
 		finalizedBy jacocoTestReport
 	}
+
+	sonarqube {
+		properties {
+			// Paths are relative to the module's base directory
+			property "sonar.sources", "src/main/java"
+			property "sonar.tests", "src/test/java"
+		}
+	}
+
 }
