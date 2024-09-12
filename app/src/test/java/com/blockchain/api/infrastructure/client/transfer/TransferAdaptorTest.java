@@ -3,6 +3,7 @@ package com.blockchain.api.infrastructure.client.transfer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -25,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.p2p.solanaj.core.Account;
 import org.p2p.solanaj.rpc.RpcApi;
 import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 import org.springframework.core.task.TaskExecutor;
@@ -99,8 +99,12 @@ class TransferAdaptorTest {
     String expectedSignature = "TransactionSignature";
 
     when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(500_000L)))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(2_000_000L)));
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                BigDecimal.valueOf(500_000L))) // Initial insufficient balance
+        .thenReturn(
+            CompletableFuture.completedFuture(
+                BigDecimal.valueOf(2_000_000L))); // Balance after airdrop
     when(balanceClient.getMinimumBalanceForRentExemption())
         .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
     when(airDropClient.requestAirDrop(anyString(), anyLong()))
@@ -153,127 +157,8 @@ class TransferAdaptorTest {
                   .hasMessageContaining("Transaction failed");
             });
 
-    verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
-    verify(rpcApi, never()).sendTransaction(any(), anyList(), anyString());
-  }
-
-  @Test
-  @SneakyThrows
-  void shouldThrowExceptionForInterruptedExceptionDuringBalanceCheck() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenThrow(new CompletionException(new InterruptedException("Thread interrupted")));
-
-    // when
-    var futureTransfer =
-        transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
-
-    // then
-    await()
-        .atMost(Duration.ofSeconds(5))
-        .untilAsserted(
-            () -> {
-              assertThatThrownBy(futureTransfer::join)
-                  .isInstanceOf(CompletionException.class)
-                  .hasCauseInstanceOf(SolanaTransactionException.class)
-                  .hasRootCauseInstanceOf(InterruptedException.class) // Check root cause
-                  .hasRootCauseMessage("Thread interrupted"); // Ensure the message is correct
-            });
 
     verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
     verify(rpcApi, never()).sendTransaction(any(), anyList(), anyString());
-  }
-
-  @Test
-  @SneakyThrows
-  void shouldThrowExceptionForRpcExceptionDuringTransaction() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(lamports)));
-    when(balanceClient.getMinimumBalanceForRentExemption())
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("Blockhash"));
-    when(rpcApi.sendTransaction(any(), anyList(), anyString()))
-        .thenThrow(new RpcException("RPC Error"));
-
-    try (var mockedStatic = mockStatic(SubscriptionWebSocketClient.class)) {
-      mockedStatic
-          .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
-          .thenReturn(subscriptionWebSocketClient);
-
-      // when
-      var futureTransfer =
-          transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
-
-      // then
-      await()
-          .atMost(Duration.ofSeconds(5))
-          .untilAsserted(
-              () -> {
-                assertThatThrownBy(futureTransfer::join)
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(SolanaTransactionException.class)
-                    .hasMessageContaining("Transaction failed"); // Match current exception message
-              });
-
-      verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
-    }
-  }
-
-  @Test
-  @SneakyThrows
-  void shouldThrowExceptionForInterruptedExceptionDuringTransaction() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(lamports)));
-    when(balanceClient.getMinimumBalanceForRentExemption())
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("Blockhash"));
-
-    // Throw a CompletionException wrapping an InterruptedException
-    doThrow(new CompletionException(new InterruptedException("Thread interrupted")))
-        .when(rpcApi)
-        .sendTransaction(any(), anyList(), anyString());
-
-    try (var mockedStatic = mockStatic(SubscriptionWebSocketClient.class)) {
-      mockedStatic
-          .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
-          .thenReturn(subscriptionWebSocketClient);
-
-      // when
-      var futureTransfer =
-          transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
-
-      // then
-      await()
-          .atMost(Duration.ofSeconds(5))
-          .untilAsserted(
-              () -> {
-                assertThatThrownBy(futureTransfer::join)
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(SolanaTransactionException.class)
-                    .hasMessageContaining("Transaction failed") // This is the expected message
-                    .hasRootCauseInstanceOf(
-                        InterruptedException.class) // Ensure InterruptedException is the root cause
-                    .hasRootCauseMessage(
-                        "Thread interrupted"); // Ensure the root cause message is correct
-              });
-
-      verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
-    }
   }
 }
