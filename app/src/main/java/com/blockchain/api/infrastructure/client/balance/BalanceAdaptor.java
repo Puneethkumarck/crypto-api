@@ -46,6 +46,36 @@ public class BalanceAdaptor implements BalanceClient {
             });
   }
 
+  @Override
+  public CompletableFuture<BigDecimal> getBalanceLamports(String address) {
+    return CompletableFuture.supplyAsync(() -> isValidAddressOrThrow(address), taskExecutor)
+        .thenCompose(
+            validAddress ->
+                CompletableFuture.supplyAsync(() -> fetchBalanceLamports(address), taskExecutor))
+        .thenApply(
+            result -> {
+              log.info("Balance request completed successfully for address: {}", address);
+              return result;
+            });
+  }
+
+  private BigDecimal fetchBalanceLamports(String address) {
+    try {
+      var balanceResult = solanaNodeClient.getApi().getBalance(PublicKey.valueOf(address));
+      log.info(
+          "Address: {} | Balance: {} lamports | Equivalent SOL: {}",
+          address,
+          balanceResult,
+          lamportsToSol(balanceResult));
+
+      return new BigDecimal(balanceResult);
+
+    } catch (RpcException e) {
+      log.error("RPC error while fetching balance for address: {}", address, e);
+      return BigDecimal.ZERO;
+    }
+  }
+
   private BigDecimal fetchBalance(String address) {
     try {
       var balanceResult = solanaNodeClient.getApi().getBalance(PublicKey.valueOf(address));

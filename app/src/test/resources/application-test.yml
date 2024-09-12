@@ -7,3 +7,7 @@ rpc:
   logging:
     level:
       "com.github.tomakehurst.wiremock": "TRACE"
+
+solana:
+  secret:
+    keypair: "WzE0LDEyNSwxODcsMTM2LDIzOSwxNzMsMTk4LDcwLDEzMiwxMTYsNjgsMTcxLDQxLDE5MywyMTIsMTU2LDIyMSwxNywxOTIsMTU1LDQxLDY5LDEwNCwxODUsNDcsNDAsMTU4LDI0MSwxMTMsMTcsMjQsMzEsMTIsMTgsMjUzLDE2NCw0Nyw4NSwxMjksMTk2LDExNiwxODcsNzMsMTY4LDIwMywyMDIsMTcwLDIyNCwxMTcsNDAsNjksNSwxMTYsMjAzLDUyLDE5NSwyMjUsNjksNDMsMjQ3LDgyLDIyNywxLDk2XQ=="
