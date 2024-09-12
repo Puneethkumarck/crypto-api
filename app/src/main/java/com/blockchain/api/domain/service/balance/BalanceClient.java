@@ -7,4 +7,6 @@ public interface BalanceClient {
   CompletableFuture<BigDecimal> getBalance(String address, boolean isLamports);
 
   CompletableFuture<BigDecimal> getMinimumBalanceForRentExemption();
+
+  CompletableFuture<BigDecimal> getBalanceLamports(String address);
 }
