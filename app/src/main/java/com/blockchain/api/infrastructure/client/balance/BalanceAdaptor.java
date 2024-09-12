@@ -1,6 +1,6 @@
 package com.blockchain.api.infrastructure.client.balance;
 
-import static com.blockchain.api.infrastructure.common.SolanaUtil.isValidAddressOrThrow;
+import static com.blockchain.api.application.validator.SolanaAddressValidator.isValidAddressOrThrow;
 import static com.blockchain.api.infrastructure.common.SolanaUtil.lamportsToSol;
 
 import com.blockchain.api.domain.service.balance.BalanceClient;

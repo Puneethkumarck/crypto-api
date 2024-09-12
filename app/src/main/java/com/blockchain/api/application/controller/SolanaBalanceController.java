@@ -32,7 +32,7 @@ public class SolanaBalanceController {
   private final BalanceService balanceService;
 
   private final BalanceDtoMapper mapper;
-  private final Predicate<String> isValidPublicKey = SolanaAddressValidator::isValidPublicKey;
+  private final Predicate<String> isValidAddress = SolanaAddressValidator::isValidAddress;
 
   @Operation(
       summary = "Get Solana Balance",
@@ -63,7 +63,7 @@ public class SolanaBalanceController {
   @GetMapping("/{address}")
   public BalanceDto getBalance(@PathVariable("address") String address) {
     log.info("Fetching balance for address: {}", address);
-    if (!isValidPublicKey.test(address)) {
+    if (!isValidAddress.test(address)) {
       throw InvalidAddressException.withAddress(address);
     }
     return mapper.mapToDto(address, balanceService.getSolanaBalance(address).toString());
