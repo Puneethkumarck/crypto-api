@@ -157,7 +157,6 @@ class TransferAdaptorTest {
                   .hasMessageContaining("Transaction failed");
             });
 
-
     verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
     verify(rpcApi, never()).sendTransaction(any(), anyList(), anyString());
   }
