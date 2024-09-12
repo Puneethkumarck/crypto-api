@@ -9,7 +9,7 @@ import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class BlockhashAdaptorIT extends BaseSolanaTest {
+public class BlockhashAdaptorITest extends BaseSolanaTest {
 
   @Autowired private BlockhashAdaptor blockhashAdaptor;
 

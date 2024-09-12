@@ -4,10 +4,6 @@ import org.p2p.solanaj.rpc.RpcException;
 
 public class RequestAirDropException extends RuntimeException {
 
-  public RequestAirDropException(String message) {
-    super(message);
-  }
-
   public RequestAirDropException(String message, Throwable cause) {
     super(message, cause);
   }

@@ -2,6 +2,7 @@ package com.blockchain.api.domain.service.transfer;
 
 import static org.p2p.solanaj.rpc.types.config.Commitment.CONFIRMED;
 
+import com.blockchain.api.domain.service.airdrop.AirDropClient;
 import com.blockchain.api.domain.service.blockhash.BlockhashClient;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -30,6 +31,8 @@ class TransferServiceIT {
   @Autowired private TransferService transferService;
 
   @Autowired private BlockhashClient blockhashClient;
+
+  @Autowired private AirDropClient airDropClient;
 
   @Test
   void transfer() {
@@ -116,5 +119,13 @@ class TransferServiceIT {
   void getLatestBlockhash() {
     var blockhash = blockhashClient.getLatestBlockhash();
     log.info("Blockhash: {}", blockhash);
+  }
+
+  @Test
+  void requestAirDrop() {
+    var address = "CVSvjutqskYyF1hZTyZARGjGvf8d1Pp9mJMAJ8hTMHhm";
+    var amount = 6000L;
+    var response = airDropClient.requestAirDrop(address, amount);
+    log.info("Airdrop response: {}", response);
   }
 }

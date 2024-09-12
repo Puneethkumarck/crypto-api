@@ -67,4 +67,16 @@ public abstract class BaseSolanaTest {
                     .withHeader("Content-Type", "application/json")
                     .withBodyFile("stub/get_latest_block_hash.json")));
   }
+
+  protected static void stubAirdrop() {
+    WIRE_MOCK_RULE.stubFor(
+        WireMock.post(WireMock.urlEqualTo("/"))
+            .withRequestBody(
+                WireMock.matchingJsonPath("$.method", WireMock.equalTo("requestAirdrop")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBodyFile("stub/request_airdrop_response.json")));
+  }
 }

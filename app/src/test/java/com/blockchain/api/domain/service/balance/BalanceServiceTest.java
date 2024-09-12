@@ -23,7 +23,7 @@ class BalanceServiceTest {
     // given
     var address = "someAddress";
     var expectedBalance = new BigDecimal("1.999603");
-    when(balanceClient.getBalance(address)).thenReturn(completedFuture(expectedBalance));
+    when(balanceClient.getBalance(address, false)).thenReturn(completedFuture(expectedBalance));
 
     // when
     var actualBalance = balanceService.getSolanaBalance(address);

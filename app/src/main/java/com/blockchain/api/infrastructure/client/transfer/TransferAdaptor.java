@@ -66,7 +66,7 @@ public class TransferAdaptor implements TransferClient {
         () -> {
           try {
             BigDecimal balance =
-                balanceClient.getBalanceLamports(senderAccount.getPublicKey().toBase58()).get();
+                balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true).get();
             BigDecimal minRentExemption = balanceClient.getMinimumBalanceForRentExemption().get();
             BigDecimal totalRequired = BigDecimal.valueOf(lamports).add(minRentExemption);
 
@@ -78,9 +78,7 @@ public class TransferAdaptor implements TransferClient {
                   .requestAirDrop(senderAccount.getPublicKey().toBase58(), 1_000_000_000L)
                   .get(); // 1 SOL
               log.info("Airdrop successful.");
-              return balanceClient
-                  .getBalanceLamports(senderAccount.getPublicKey().toBase58())
-                  .get();
+              return balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true).get();
             }
 
             return balance;
@@ -121,10 +119,12 @@ public class TransferAdaptor implements TransferClient {
       return transactionSignature;
     } catch (RpcException e) {
       log.error("Error during transaction: {}", e.getMessage());
-      throw new SolanaTransactionException("Failed to send transaction", e);
+      throw SolanaTransactionException.withRpcException(
+          "Failed to send transaction for recipent address: %s".formatted(recipientAddress), e);
     } catch (Exception e) {
-      log.error("Error initiating transfer: {}", e.getMessage());
-      throw new SolanaTransactionException("Transfer initiation failed", e);
+      log.error("Transaction initiation failed {}", e.getMessage());
+      throw SolanaTransactionException.withException(
+          "Error initiating transfer  for recipent address: %s:".formatted(recipientAddress), e);
     }
   }
 }

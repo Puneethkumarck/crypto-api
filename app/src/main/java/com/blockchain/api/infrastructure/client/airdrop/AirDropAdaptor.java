@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.p2p.solanaj.core.PublicKey;
 import org.p2p.solanaj.rpc.RpcClient;
 import org.p2p.solanaj.rpc.RpcException;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -25,7 +24,6 @@ public class AirDropAdaptor implements AirDropClient {
   private final Executor taskExecutor;
 
   @Override
-  @Async("taskExecutor")
   public CompletableFuture<String> requestAirDrop(String address, long amount) {
     return CompletableFuture.supplyAsync(() -> isValidAddressOrThrow(address), taskExecutor)
         .thenCompose(
@@ -46,7 +44,7 @@ public class AirDropAdaptor implements AirDropClient {
       return solanaNodeClient.getApi().requestAirdrop(PublicKey.valueOf(address), amount);
     } catch (RpcException e) {
       log.error("Error while sending airdrop to address: {}, amount: {}", address, amount, e);
-      throw RequestAirDropException.withAddress("Failed to send airdrop to address: " + address, e);
+      throw RequestAirDropException.withAddress(address, e);
     }
   }
 }

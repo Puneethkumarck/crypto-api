@@ -51,7 +51,7 @@ class BalanceAdaptorTest {
     when(rpcApi.getBalance(VALID_PUBLIC_KEY)).thenReturn(VALID_LAMPORTS);
 
     // when
-    var balance = balanceAdaptor.getBalance(VALID_ADDRESS);
+    var balance = balanceAdaptor.getBalance(VALID_ADDRESS, false);
 
     // then
     await()
@@ -71,7 +71,7 @@ class BalanceAdaptorTest {
     doThrow(new RpcException("RPC error")).when(rpcApi).getBalance(VALID_PUBLIC_KEY);
 
     // when
-    var balance = balanceAdaptor.getBalance(VALID_ADDRESS).join();
+    var balance = balanceAdaptor.getBalance(VALID_ADDRESS, false).join();
 
     // then
     await()
@@ -105,8 +105,9 @@ class BalanceAdaptorTest {
   @SneakyThrows
   void shouldReturnZeroWhenMinimumBalanceForRentExemptionRpcExceptionOccurs() {
     // given
-    when(rpcApi.getMinimumBalanceForRentExemption(0))
-        .thenThrow(new RpcException("RPC failure on minimum balance fetch"));
+    doThrow(new RpcException("RPC failure on minimum balance fetch"))
+        .when(rpcApi)
+        .getMinimumBalanceForRentExemption(0);
 
     // when
     var resultFuture = balanceAdaptor.getMinimumBalanceForRentExemption();
@@ -117,5 +118,25 @@ class BalanceAdaptorTest {
         .untilAsserted(() -> assertThat(resultFuture.join()).isEqualByComparingTo(BigDecimal.ZERO));
 
     verify(rpcApi, times(1)).getMinimumBalanceForRentExemption(0);
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldReturnBalanceInlamports() {
+    // given
+    when(rpcApi.getBalance(VALID_PUBLIC_KEY)).thenReturn(VALID_LAMPORTS);
+
+    // when
+    var balance = balanceAdaptor.getBalance(VALID_ADDRESS, true);
+
+    // then
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () ->
+                assertThat(balance.join())
+                    .isEqualByComparingTo(BigDecimal.valueOf(VALID_LAMPORTS)));
+
+    verify(rpcApi, times(1)).getBalance(VALID_PUBLIC_KEY);
   }
 }
