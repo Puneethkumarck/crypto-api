@@ -99,12 +99,8 @@ class TransferAdaptorTest {
     String expectedSignature = "TransactionSignature";
 
     when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(
-            CompletableFuture.completedFuture(
-                BigDecimal.valueOf(500_000L))) // Initial insufficient balance
-        .thenReturn(
-            CompletableFuture.completedFuture(
-                BigDecimal.valueOf(2_000_000L))); // Balance after airdrop
+        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(500_000L)))
+        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(2_000_000L)));
     when(balanceClient.getMinimumBalanceForRentExemption())
         .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
     when(airDropClient.requestAirDrop(anyString(), anyLong()))
@@ -155,6 +151,36 @@ class TransferAdaptorTest {
                   .isInstanceOf(CompletionException.class)
                   .hasCauseInstanceOf(SolanaTransactionException.class)
                   .hasMessageContaining("Transaction failed");
+            });
+
+    verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
+    verify(rpcApi, never()).sendTransaction(any(), anyList(), anyString());
+  }
+
+  @Test
+  @SneakyThrows
+  void shouldThrowExceptionForInterruptedExceptionDuringBalanceCheck() {
+    // given
+    Account senderAccount = new Account();
+    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
+    long lamports = 1_000_000L;
+
+    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
+        .thenThrow(new InterruptedException("Thread interrupted"));
+
+    // when
+    var futureTransfer =
+        transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
+
+    // then
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(
+            () -> {
+              assertThatThrownBy(futureTransfer::join)
+                  .isInstanceOf(CompletionException.class)
+                  .hasCauseInstanceOf(SolanaTransactionException.class)
+                  .hasMessageContaining("Thread was interrupted");
             });
 
     verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());

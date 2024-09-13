@@ -82,6 +82,9 @@ public class TransferAdaptor implements TransferClient {
             }
 
             return balance;
+          } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new SolanaTransactionException("Thread was interrupted", ie);
           } catch (Exception e) {
             log.error("Error ensuring sufficient balance: {}", e.getMessage());
             throw new SolanaTransactionException("Failed to ensure sufficient balance", e);
@@ -118,13 +121,17 @@ public class TransferAdaptor implements TransferClient {
 
       return transactionSignature;
     } catch (RpcException e) {
-      log.error("Error during transaction: {}", e.getMessage());
-      throw SolanaTransactionException.withRpcException(
-          "Failed to send transaction for recipent address: %s".formatted(recipientAddress), e);
-    } catch (Exception e) {
-      log.error("Transaction initiation failed {}", e.getMessage());
+      log.error("RPC Exception during transaction: {}", e.getMessage(), e);
+      throw SolanaTransactionException.withRpcException(recipientAddress, e);
+    } catch (InterruptedException e) {
+      log.error("Transaction interrupted: {}", e.getMessage(), e);
+      Thread.currentThread().interrupt();
       throw SolanaTransactionException.withException(
-          "Error initiating transfer  for recipent address: %s:".formatted(recipientAddress), e);
+          "Transaction interrupted for recipient address: %s".formatted(recipientAddress), e);
+    } catch (Exception e) {
+      log.error("Transaction initiation failed: {}", e.getMessage(), e);
+      throw SolanaTransactionException.withException(
+          "Error initiating transfer for recipient address: %s".formatted(recipientAddress), e);
     }
   }
 }

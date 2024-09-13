@@ -18,10 +18,8 @@ public class TransferService {
   public void transfer(TransferRequest request) {
     log.info("Transferring {} lamports to destination address {}", request.amount(), request.to());
 
-    // Create a NotificationEventListener to handle transaction confirmation
     NotificationEventListener listener = data -> log.info("Notification received: {}", data);
 
-    // Perform the transfer using the TransferClient
     transferClient
         .transferFunds(
             accountLoaderService.loadSenderKeypair(), request.to(), request.amount(), listener)
