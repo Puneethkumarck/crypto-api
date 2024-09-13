@@ -1,5 +1,15 @@
 plugins {
-    id 'java'
+    id 'org.springframework.boot'
+}
+
+springBoot {
+    buildInfo() {
+        properties {
+            group = rootProject.group
+            artifact = rootProject.name
+            version = rootProject.version
+        }
+    }
 }
 
 dependencies {

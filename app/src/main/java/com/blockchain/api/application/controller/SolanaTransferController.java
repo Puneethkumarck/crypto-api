@@ -3,6 +3,7 @@ package com.blockchain.api.application.controller;
 import com.blockchain.api.application.mapper.TransferRequestDtoMapper;
 import com.blockchain.api.domain.service.transfer.TransferService;
 import com.blockchain.api.model.TransferRequestDto;
+import com.blockchain.api.model.TransferResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +23,8 @@ public class SolanaTransferController {
   private final TransferRequestDtoMapper mapper;
 
   @PostMapping
-  public void transfer(@Valid @RequestBody TransferRequestDto request) {
+  public TransferResponseDto transfer(@Valid @RequestBody TransferRequestDto request) {
     log.info("Transfer request: {}", request);
-    transferService.transfer(mapper.mapToDomain(request));
+    return mapper.mapToDto(transferService.transfer(mapper.mapToDomain(request)));
   }
 }
