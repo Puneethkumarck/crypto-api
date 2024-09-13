@@ -12,7 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SolanaUtilTest {
 
   @Test
-  void ShouldConvertLamportToSol() {
+  void shouldConvertLamportToSol() {
     // given
     var lamport = 1_000_000_000L;
 
