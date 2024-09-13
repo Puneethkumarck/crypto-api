@@ -15,7 +15,7 @@ public class TransferService {
 
   private final AccountLoaderService accountLoaderService;
 
-  public void transfer(TransferRequest request) {
+  public TransferResponse transfer(TransferRequest request) {
     log.info("Transferring {} lamports to destination address {}", request.amount(), request.to());
 
     NotificationEventListener listener = data -> log.info("Notification received: {}", data);
@@ -24,15 +24,18 @@ public class TransferService {
         .transferFunds(
             accountLoaderService.loadSenderKeypair(), request.to(), request.amount(), listener)
         .orTimeout(10, TimeUnit.SECONDS)
-        .thenAccept(
-            transactionSignature ->
-                log.info(
-                    "Transfer completed successfully. Transaction signature: {}",
-                    transactionSignature))
+        .thenApply(
+            transactionSignature -> {
+              log.info(
+                  "Transfer completed successfully. Transaction signature: {}",
+                  transactionSignature);
+              return TransferResponse.builder().transactionHash(transactionSignature).build();
+            })
         .exceptionally(
             ex -> {
               log.error("Transfer failed", ex);
               return null;
             });
+    return null;
   }
 }

@@ -1,6 +1,6 @@
 package com.blockchain.api.application.controller;
 
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.blockchain.api.application.BaseControllerTest;
 import com.blockchain.api.application.mapper.TransferRequestDtoMapper;
 import com.blockchain.api.application.mapper.TransferRequestDtoMapperImpl;
+import com.blockchain.api.domain.service.transfer.TransferResponse;
 import com.blockchain.api.domain.service.transfer.TransferService;
 import com.blockchain.api.model.TransferRequestDto;
 import lombok.SneakyThrows;
@@ -29,13 +30,14 @@ class SolanaTransferControllerTest extends BaseControllerTest {
   @SneakyThrows
   void transfer() {
     // given
+    var transferResponse = TransferResponse.builder().transactionHash("transactionHash").build();
     TransferRequestDto request =
         TransferRequestDto.builder()
             .to("8FKTyHMLQAsZB1Jv7RTshkXuwXHpYsWtEhKhZmXzvH2p")
             .amount(5000L)
             .build();
 
-    doNothing().when(transferService).transfer(mapper.mapToDomain(request));
+    when(transferService.transfer(mapper.mapToDomain(request))).thenReturn(transferResponse);
 
     // when
     mockMvc
@@ -43,7 +45,9 @@ class SolanaTransferControllerTest extends BaseControllerTest {
             post("/api/v1/transfers")
                 .contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.transactionHash").value(transferResponse.transactionHash()));
+    verify(transferService, times(1)).transfer(mapper.mapToDomain(request));
   }
 
   @Test
