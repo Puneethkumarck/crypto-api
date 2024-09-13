@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "66e24b53-7c36-4224-b7e7-0bf57a0ce2ad",
+		"name": "crypto-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "685178",
+		"_collection_link": "https://www.postman.com/puneethkumarck/workspace/my-projects/collection/685178-66e24b53-7c36-4224-b7e7-0bf57a0ce2ad?action=share&source=collection_link&creator=685178"
+	},
+	"item": [
+		{
+			"name": "getBalance",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/balances/p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"balances",
+						"p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "transfer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"to\" : \"81e58SU8EHdBmSnETExsCwurbfWeCbNg9UoAFmKPyyj3\",\n    \"amount\" : \"1000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/transfers",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"transfers"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
