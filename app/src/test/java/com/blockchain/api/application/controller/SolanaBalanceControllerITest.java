@@ -9,7 +9,7 @@ import com.blockchain.api.model.BalanceDto;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-public class SolanaBalanceControllerIT extends BaseControllerIT {
+public class SolanaBalanceControllerITest extends BaseControllerIT {
   @Test
   @SneakyThrows
   void getBalance() {

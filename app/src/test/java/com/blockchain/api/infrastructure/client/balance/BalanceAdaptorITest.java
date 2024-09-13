@@ -9,7 +9,7 @@ import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class BalanceAdaptorTestIT extends BaseSolanaTest {
+class BalanceAdaptorITest extends BaseSolanaTest {
   @Autowired private BalanceAdaptor balanceAdaptor;
 
   @Test
@@ -20,7 +20,7 @@ class BalanceAdaptorTestIT extends BaseSolanaTest {
     stubGetBalance();
 
     // when
-    var futureBalance = balanceAdaptor.getBalance(address);
+    var futureBalance = balanceAdaptor.getBalance(address, false);
 
     // then
     await()

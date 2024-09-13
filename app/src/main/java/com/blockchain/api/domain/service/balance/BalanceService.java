@@ -13,7 +13,7 @@ public class BalanceService {
   private final BalanceClient balanceClient;
 
   public BigDecimal getSolanaBalance(String address) {
-    return balanceClient.getBalance(address).join();
+    return balanceClient.getBalance(address, false).join();
   }
 
   public BigDecimal getMinimumBalanceForRentExemption() {
