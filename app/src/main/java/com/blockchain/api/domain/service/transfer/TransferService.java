@@ -3,7 +3,6 @@ package com.blockchain.api.domain.service.transfer;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -15,27 +14,24 @@ public class TransferService {
 
   private final AccountLoaderService accountLoaderService;
 
-  public TransferResponse transfer(TransferRequest request) {
-    log.info("Transferring {} lamports to destination address {}", request.amount(), request.to());
+  private final LogWebSocketNotification listener;
 
-    NotificationEventListener listener = data -> log.info("Notification received: {}", data);
+  public void transfer(TransferRequest request) {
+    log.info("Transferring {} lamports to destination address {}", request.amount(), request.to());
 
     transferClient
         .transferFunds(
             accountLoaderService.loadSenderKeypair(), request.to(), request.amount(), listener)
         .orTimeout(10, TimeUnit.SECONDS)
-        .thenApply(
-            transactionSignature -> {
-              log.info(
-                  "Transfer completed successfully. Transaction signature: {}",
-                  transactionSignature);
-              return TransferResponse.builder().transactionHash(transactionSignature).build();
-            })
+        .thenAccept(
+            transactionSignature ->
+                log.info(
+                    "Transfer completed successfully. Transaction signature: {}",
+                    transactionSignature))
         .exceptionally(
             ex -> {
               log.error("Transfer failed", ex);
               return null;
             });
-    return null;
   }
 }
