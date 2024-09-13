@@ -87,7 +87,8 @@ class TransferServiceIT {
     NotificationEventListener listener =
         data -> log.info("Transaction confirmed with notification data: {}", data);
 
-    var recentBlckHash = client.getApi().getLatestBlockhash(CONFIRMED);
+    var recentBlockhash = client.getApi().getLatestBlockhash(CONFIRMED);
+    log.info("Recent blockhash: {}", recentBlockhash);
 
     client.getApi().sendAndConfirmTransaction(transaction, List.of(signer), listener);
 

@@ -47,7 +47,7 @@ public class BalanceAdaptor implements BalanceClient {
             });
   }
 
-  private BigDecimal fetchBalance(String address, Boolean isLamports) {
+  private BigDecimal fetchBalance(String address, boolean isLamports) {
     try {
       var balanceResult = solanaNodeClient.getApi().getBalance(PublicKey.valueOf(address));
       log.info("Received balance in lamports: {}", balanceResult);
