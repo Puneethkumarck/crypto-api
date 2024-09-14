@@ -1,12 +1,7 @@
 package com.blockchain.api.infrastructure.client.transfer;
 
 import com.blockchain.api.application.exception.SolanaTransactionException;
-import com.blockchain.api.application.validator.SolanaAddressValidator;
-import com.blockchain.api.domain.service.airdrop.AirDropClient;
-import com.blockchain.api.domain.service.balance.BalanceClient;
-import com.blockchain.api.domain.service.blockhash.BlockhashClient;
 import com.blockchain.api.domain.service.transfer.TransferClient;
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,109 +24,46 @@ import org.springframework.stereotype.Component;
 public class TransferAdaptor implements TransferClient {
 
   private final RpcClient solanaNodeClient;
-  private final BalanceClient balanceClient;
-  private final AirDropClient airDropClient;
   private final Executor taskExecutor;
-  private final BlockhashClient blockhashClient;
 
   @Override
   public CompletableFuture<String> transferFunds(
       Account senderAccount,
       String recipientAddress,
       long lamports,
+      String latestBlockhash,
       NotificationEventListener listener) {
     return CompletableFuture.supplyAsync(
         () -> {
           try {
-            SolanaAddressValidator.isValidAddressOrThrow(senderAccount.getPublicKey().toBase58());
-            SolanaAddressValidator.isValidAddressOrThrow(recipientAddress);
+            PublicKey recipientPublicKey = new PublicKey(recipientAddress);
 
-            // Ensure the balance is sufficient
-            BigDecimal balance = ensureSufficientBalance(senderAccount, lamports).get();
-            log.info("Sufficient balance found: {} lamports", balance);
+            Transaction transaction =
+                new Transaction()
+                    .addInstruction(
+                        SystemProgram.transfer(
+                            senderAccount.getPublicKey(), recipientPublicKey, lamports));
 
-            // Initiate the transfer process
-            return initiateTransfer(senderAccount, recipientAddress, lamports, listener);
+            List<Account> signers = Collections.singletonList(senderAccount);
+
+            log.info("Sending transaction...");
+            String transactionSignature =
+                solanaNodeClient.getApi().sendTransaction(transaction, signers, latestBlockhash);
+            log.info("Transaction sent successfully. Signature: {}", transactionSignature);
+            SubscriptionWebSocketClient subClient =
+                SubscriptionWebSocketClient.getInstance(solanaNodeClient.getEndpoint());
+            subClient.signatureSubscribe(transactionSignature, listener);
+            return transactionSignature;
+          } catch (RpcException e) {
+            log.error("RPC Exception during transaction: {}", e.getMessage(), e);
+            throw SolanaTransactionException.withRpcException(recipientAddress, e);
           } catch (Exception e) {
-            log.error("Transfer failed: {}", e.getMessage());
-            throw new SolanaTransactionException("Transaction failed", e);
+            log.error("Transaction initiation failed: {}", e.getMessage(), e);
+            throw SolanaTransactionException.withException(
+                "Error initiating transfer for recipient address: %s".formatted(recipientAddress),
+                e);
           }
         },
         taskExecutor);
-  }
-
-  private CompletableFuture<BigDecimal> ensureSufficientBalance(
-      Account senderAccount, long lamports) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          try {
-            BigDecimal balance =
-                balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true).get();
-            BigDecimal minRentExemption = balanceClient.getMinimumBalanceForRentExemption().get();
-            BigDecimal totalRequired = BigDecimal.valueOf(lamports).add(minRentExemption);
-
-            if (balance.compareTo(totalRequired) < 0) {
-              log.info(
-                  "Insufficient balance. Airdropping 1 SOL to {}",
-                  senderAccount.getPublicKey().toBase58());
-              airDropClient
-                  .requestAirDrop(senderAccount.getPublicKey().toBase58(), 1_000_000_000L)
-                  .get(); // 1 SOL
-              log.info("Airdrop successful.");
-              return balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true).get();
-            }
-
-            return balance;
-          } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            throw new SolanaTransactionException("Thread was interrupted", ie);
-          } catch (Exception e) {
-            log.error("Error ensuring sufficient balance: {}", e.getMessage());
-            throw new SolanaTransactionException("Failed to ensure sufficient balance", e);
-          }
-        },
-        taskExecutor);
-  }
-
-  private String initiateTransfer(
-      Account senderAccount,
-      String recipientAddress,
-      long lamports,
-      NotificationEventListener listener) {
-    try {
-      PublicKey senderPublicKey = senderAccount.getPublicKey();
-      PublicKey recipientPublicKey = new PublicKey(recipientAddress);
-
-      String recentBlockhash = blockhashClient.getLatestBlockhash().get();
-
-      Transaction transaction = new Transaction();
-      transaction.addInstruction(
-          SystemProgram.transfer(senderPublicKey, recipientPublicKey, lamports));
-
-      List<Account> signers = Collections.singletonList(senderAccount);
-
-      log.info("Sending transaction...");
-      String transactionSignature =
-          solanaNodeClient.getApi().sendTransaction(transaction, signers, recentBlockhash);
-      log.info("Transaction sent successfully. Signature: {}", transactionSignature);
-
-      SubscriptionWebSocketClient subClient =
-          SubscriptionWebSocketClient.getInstance(solanaNodeClient.getEndpoint());
-      subClient.signatureSubscribe(transactionSignature, listener);
-
-      return transactionSignature;
-    } catch (RpcException e) {
-      log.error("RPC Exception during transaction: {}", e.getMessage(), e);
-      throw SolanaTransactionException.withRpcException(recipientAddress, e);
-    } catch (InterruptedException e) {
-      log.error("Transaction interrupted: {}", e.getMessage(), e);
-      Thread.currentThread().interrupt();
-      throw SolanaTransactionException.withException(
-          "Transaction interrupted for recipient address: %s".formatted(recipientAddress), e);
-    } catch (Exception e) {
-      log.error("Transaction initiation failed: {}", e.getMessage(), e);
-      throw SolanaTransactionException.withException(
-          "Error initiating transfer for recipient address: %s".formatted(recipientAddress), e);
-    }
   }
 }

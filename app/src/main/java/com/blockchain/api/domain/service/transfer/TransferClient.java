@@ -9,5 +9,6 @@ public interface TransferClient {
       Account senderAccount,
       String recipientAddress,
       long lamports,
+      String blockhash,
       NotificationEventListener listener);
 }

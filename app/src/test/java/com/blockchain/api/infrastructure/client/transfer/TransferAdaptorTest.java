@@ -7,12 +7,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import com.blockchain.api.application.exception.SolanaTransactionException;
-import com.blockchain.api.domain.service.airdrop.AirDropClient;
-import com.blockchain.api.domain.service.balance.BalanceClient;
-import com.blockchain.api.domain.service.blockhash.BlockhashClient;
-import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.p2p.solanaj.core.Account;
+import org.p2p.solanaj.core.Transaction;
 import org.p2p.solanaj.rpc.RpcApi;
 import org.p2p.solanaj.rpc.RpcClient;
-import org.p2p.solanaj.rpc.RpcException;
 import org.p2p.solanaj.ws.SubscriptionWebSocketClient;
 import org.p2p.solanaj.ws.listeners.NotificationEventListener;
 import org.springframework.core.task.TaskExecutor;
@@ -35,17 +31,18 @@ import org.springframework.core.task.TaskExecutor;
 class TransferAdaptorTest {
   @Mock private RpcClient rpcClient;
   @Mock private RpcApi rpcApi;
-  @Mock private BalanceClient balanceClient;
-  @Mock private AirDropClient airDropClient;
-  @Mock private BlockhashClient blockhashClient;
   @Mock private NotificationEventListener listener;
   @InjectMocks private TransferAdaptor transferAdaptor;
   @Mock private TaskExecutor taskExecutor;
   @Mock private SubscriptionWebSocketClient subscriptionWebSocketClient;
+  private static final String BLOCK_HASH = "latestBlockhash";
+  private static final Account SENDER_ACCOUNT = new Account();
+  private static final String RECIPIENT_ADDRESS = "81e58SU8EHdBmSnETExsCwurbfWeCbNg9UoAFmKPyyj3";
+  private static final Long LAM_PORTS = 1000L;
 
   @BeforeEach
   void setUp() {
-    lenient().when(rpcClient.getApi()).thenReturn(rpcApi);
+    when(rpcClient.getApi()).thenReturn(rpcApi);
     doAnswer(
             invocation -> {
               Runnable runnable = invocation.getArgument(0);
@@ -57,59 +54,14 @@ class TransferAdaptorTest {
   }
 
   @Test
-  @SneakyThrows
-  void shouldTransferFundSuccessFully() {
+  void shouldTransferFundsSuccessfully() throws Exception {
     // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-    String expectedSignature = "TransactionSignature";
+    var expectedSignature = "transactionSignature";
+    when(rpcApi.sendTransaction(any(Transaction.class), anyList(), eq(BLOCK_HASH)))
+        .thenReturn(expectedSignature);
 
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(lamports)));
-    when(balanceClient.getMinimumBalanceForRentExemption())
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("Blockhash"));
-    when(rpcApi.sendTransaction(any(), anyList(), anyString())).thenReturn(expectedSignature);
-
-    try (var mockedStatic = mockStatic(SubscriptionWebSocketClient.class)) {
-      mockedStatic
-          .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
-          .thenReturn(subscriptionWebSocketClient);
-
-      doNothing().when(subscriptionWebSocketClient).signatureSubscribe(anyString(), any());
-
-      var futureTransfer =
-          transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
-
-      await()
-          .atMost(Duration.ofSeconds(10))
-          .untilAsserted(() -> assertThat(futureTransfer.join()).isEqualTo(expectedSignature));
-    }
-  }
-
-  @Test
-  @SneakyThrows
-  void shouldTriggerAirdropForInsufficientBalanceAndTransferSuccessfully() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-    String expectedSignature = "TransactionSignature";
-
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(500_000L)))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(2_000_000L)));
-    when(balanceClient.getMinimumBalanceForRentExemption())
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
-    when(airDropClient.requestAirDrop(anyString(), anyLong()))
-        .thenReturn(CompletableFuture.completedFuture("AirdropSuccess"));
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("Blockhash"));
-    when(rpcApi.sendTransaction(any(), anyList(), anyString())).thenReturn(expectedSignature);
-
-    try (var mockedStatic = mockStatic(SubscriptionWebSocketClient.class)) {
+    try (MockedStatic<SubscriptionWebSocketClient> mockedStatic =
+        mockStatic(SubscriptionWebSocketClient.class)) {
       mockedStatic
           .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
           .thenReturn(subscriptionWebSocketClient);
@@ -118,101 +70,69 @@ class TransferAdaptorTest {
 
       // when
       var futureTransfer =
-          transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
+          transferAdaptor.transferFunds(
+              SENDER_ACCOUNT, RECIPIENT_ADDRESS, LAM_PORTS, BLOCK_HASH, listener);
 
       // then
       await()
           .atMost(Duration.ofSeconds(10))
-          .untilAsserted(() -> assertThat(futureTransfer.join()).isEqualTo(expectedSignature));
-
-      verify(airDropClient, times(1))
-          .requestAirDrop(senderAccount.getPublicKey().toBase58(), 1_000_000_000L);
+          .untilAsserted(
+              () -> {
+                assertThat(futureTransfer.join()).isEqualTo(expectedSignature);
+              });
+      verify(subscriptionWebSocketClient).signatureSubscribe(eq(expectedSignature), eq(listener));
     }
   }
 
   @Test
   @SneakyThrows
-  void shouldThrowExceptionForInvalidAddress() {
+  void shouldHandleRpcExceptionDuringTransfer() {
     // given
-    Account senderAccount = new Account();
-    String invalidRecipientAddress = "InvalidRecipientAddress";
-    long lamports = 1_000_000L;
+    when(rpcApi.sendTransaction(any(Transaction.class), anyList(), eq(BLOCK_HASH)))
+        .thenThrow(new RuntimeException("RPC error"));
 
-    // when
-    var futureTransfer =
-        transferAdaptor.transferFunds(senderAccount, invalidRecipientAddress, lamports, listener);
+    try (MockedStatic<SubscriptionWebSocketClient> mockedStatic =
+        mockStatic(SubscriptionWebSocketClient.class)) {
+      mockedStatic
+          .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
+          .thenReturn(subscriptionWebSocketClient);
 
-    // then
-    await()
-        .atMost(Duration.ofSeconds(5))
-        .untilAsserted(
-            () -> {
-              assertThatThrownBy(futureTransfer::join)
-                  .isInstanceOf(CompletionException.class)
-                  .hasCauseInstanceOf(SolanaTransactionException.class)
-                  .hasMessageContaining("Transaction failed");
-            });
+      // when
+      var result =
+          transferAdaptor.transferFunds(
+              SENDER_ACCOUNT, RECIPIENT_ADDRESS, LAM_PORTS, BLOCK_HASH, listener);
 
-    verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
-    verify(rpcApi, never()).sendTransaction(any(), anyList(), anyString());
+      // then
+      await()
+          .atMost(Duration.ofSeconds(5))
+          .untilAsserted(
+              () -> {
+                assertThatThrownBy(result::join)
+                    .isInstanceOf(CompletionException.class)
+                    .hasCauseInstanceOf(SolanaTransactionException.class)
+                    .hasRootCauseInstanceOf(RuntimeException.class)
+                    .hasRootCauseMessage("RPC error");
+              });
+
+      verify(subscriptionWebSocketClient, never()).signatureSubscribe(anyString(), any());
+    }
   }
 
   @Test
-  @SneakyThrows
-  void shouldThrowExceptionForInterruptedExceptionDuringBalanceCheck() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
+  void shouldHandleGenericExceptionDuringTransfer() throws Exception {
+    when(rpcApi.sendTransaction(any(Transaction.class), anyList(), eq(BLOCK_HASH)))
+        .thenThrow(new RuntimeException("Generic error"));
 
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenThrow(new CompletionException(new InterruptedException("Thread interrupted")));
-
-    // when
-    var futureTransfer =
-        transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
-
-    // then
-    await()
-        .atMost(Duration.ofSeconds(5))
-        .untilAsserted(
-            () -> {
-              assertThatThrownBy(futureTransfer::join)
-                  .isInstanceOf(CompletionException.class)
-                  .hasCauseInstanceOf(SolanaTransactionException.class)
-                  .hasRootCauseInstanceOf(InterruptedException.class) // Check root cause
-                  .hasRootCauseMessage("Thread interrupted"); // Ensure the message is correct
-            });
-
-    verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
-    verify(rpcApi, never()).sendTransaction(any(), anyList(), anyString());
-  }
-
-  @Test
-  @SneakyThrows
-  void shouldThrowExceptionForRpcExceptionDuringTransaction() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(lamports)));
-    when(balanceClient.getMinimumBalanceForRentExemption())
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("Blockhash"));
-    when(rpcApi.sendTransaction(any(), anyList(), anyString()))
-        .thenThrow(new RpcException("RPC Error"));
-
-    try (var mockedStatic = mockStatic(SubscriptionWebSocketClient.class)) {
+    try (MockedStatic<SubscriptionWebSocketClient> mockedStatic =
+        mockStatic(SubscriptionWebSocketClient.class)) {
       mockedStatic
           .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
           .thenReturn(subscriptionWebSocketClient);
 
       // when
       var futureTransfer =
-          transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
+          transferAdaptor.transferFunds(
+              SENDER_ACCOUNT, RECIPIENT_ADDRESS, LAM_PORTS, BLOCK_HASH, listener);
 
       // then
       await()
@@ -222,58 +142,11 @@ class TransferAdaptorTest {
                 assertThatThrownBy(futureTransfer::join)
                     .isInstanceOf(CompletionException.class)
                     .hasCauseInstanceOf(SolanaTransactionException.class)
-                    .hasMessageContaining("Transaction failed"); // Match current exception message
+                    .hasRootCauseInstanceOf(RuntimeException.class)
+                    .hasRootCauseMessage("Generic error");
               });
 
-      verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
-    }
-  }
-
-  @Test
-  @SneakyThrows
-  void shouldThrowExceptionForInterruptedExceptionDuringTransaction() {
-    // given
-    Account senderAccount = new Account();
-    String recipientAddress = "p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75";
-    long lamports = 1_000_000L;
-
-    when(balanceClient.getBalance(senderAccount.getPublicKey().toBase58(), true))
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.valueOf(lamports)));
-    when(balanceClient.getMinimumBalanceForRentExemption())
-        .thenReturn(CompletableFuture.completedFuture(BigDecimal.ZERO));
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("Blockhash"));
-
-    // Throw a CompletionException wrapping an InterruptedException
-    doThrow(new CompletionException(new InterruptedException("Thread interrupted")))
-        .when(rpcApi)
-        .sendTransaction(any(), anyList(), anyString());
-
-    try (var mockedStatic = mockStatic(SubscriptionWebSocketClient.class)) {
-      mockedStatic
-          .when(() -> SubscriptionWebSocketClient.getInstance(rpcClient.getEndpoint()))
-          .thenReturn(subscriptionWebSocketClient);
-
-      // when
-      var futureTransfer =
-          transferAdaptor.transferFunds(senderAccount, recipientAddress, lamports, listener);
-
-      // then
-      await()
-          .atMost(Duration.ofSeconds(5))
-          .untilAsserted(
-              () -> {
-                assertThatThrownBy(futureTransfer::join)
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(SolanaTransactionException.class)
-                    .hasMessageContaining("Transaction failed") // This is the expected message
-                    .hasRootCauseInstanceOf(
-                        InterruptedException.class) // Ensure InterruptedException is the root cause
-                    .hasRootCauseMessage(
-                        "Thread interrupted"); // Ensure the root cause message is correct
-              });
-
-      verify(airDropClient, never()).requestAirDrop(anyString(), anyLong());
+      verify(subscriptionWebSocketClient, never()).signatureSubscribe(anyString(), any());
     }
   }
 }
