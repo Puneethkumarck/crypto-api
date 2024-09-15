@@ -1,5 +1,5 @@
 # Step 1: Build the application using Gradle from the root directory
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:21.0.4_7-jdk AS build
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN chmod +x gradlew
 RUN ./gradlew clean build --no-daemon -x test
 
 # Step 2: Create a minimal image with JRE and the built app
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21.0.4_7-jre
 
 WORKDIR /opt
 
