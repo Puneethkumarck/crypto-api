@@ -4,7 +4,6 @@ import static com.blockchain.api.application.validator.SolanaAddressValidator.is
 
 import com.blockchain.api.domain.service.balance.BalanceService;
 import com.blockchain.api.domain.service.blockhash.BlockHashService;
-import com.blockchain.api.domain.service.blockhash.BlockhashClient;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

@@ -33,8 +33,7 @@ class TransferServiceTest {
             .build();
 
     when(accountLoaderService.loadSenderKeypair()).thenReturn(mockAccount);
-    when(blockHashService.getBlockhash())
-        .thenReturn("latestBlockhash");
+    when(blockHashService.getBlockhash()).thenReturn("latestBlockhash");
 
     var mockFuture = CompletableFuture.completedFuture("transactionSignature");
     when(transferClient.transferFunds(
@@ -73,8 +72,7 @@ class TransferServiceTest {
             .build();
 
     when(accountLoaderService.loadSenderKeypair()).thenReturn(mockAccount);
-    when(blockHashService.getBlockhash())
-        .thenReturn("latestBlockhash");
+    when(blockHashService.getBlockhash()).thenReturn("latestBlockhash");
 
     CompletableFuture<String> mockFuture = new CompletableFuture<>();
     mockFuture.completeExceptionally(new RuntimeException("Transfer failed"));
