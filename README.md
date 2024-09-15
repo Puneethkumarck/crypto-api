@@ -2,6 +2,8 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Puneethkumarck_crypto-api&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Puneethkumarck_crypto-api)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Puneethkumarck_crypto-api&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Puneethkumarck_crypto-api)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Puneethkumarck_crypto-api&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Puneethkumarck_crypto-api)
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/aYpw1-?referralCode=F4Yi_e)
 # Crypto API
 
 The Crypto API provides seamless interaction with the Solana blockchain, allowing users to check balances, transfer SOL tokens, and handle airdrops in the event of insufficient funds.
@@ -18,6 +20,8 @@ The Crypto API provides seamless interaction with the Solana blockchain, allowin
   - [Get Balance](#1-get-balance)
   - [Transfer SOL](#2-transfer-sol)
 - [Solana Transaction Details](#solana-transaction-details)
+- [Deployed Application](#deployed-application)
+
 
 ## Key Features
 - **Check Balance**: Retrieve the SOL balance for any Solana wallet.
@@ -175,12 +179,13 @@ This section shows the Solana accounts involved in the transaction and how their
   - The program responsible for handling the transaction (in this case, the System Program) returned successfully, meaning the transfer was executed without errors.
 
 ---
-
 ### Summary
 - The transaction successfully transferred **0.000001 SOL** from the sender to the recipient.
 - A transaction fee of **0.000005 SOL** was charged to the sender.
 - The transaction was **finalized** and is now a permanent part of the Solana blockchain, confirmed at **slot 325,730,164**.
 
+## Deployed Application
+The application is deployed and accessible [here](https://crypto-api-production-473a.up.railway.app/swagger-ui/index.html).
 
 ### References
 - [Solana Documentation](https://docs.solana.com/)
