@@ -1,22 +1,27 @@
-# Step 1: Build the application using Gradle
+# Step 1: Build the application using Gradle from the root directory
 FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
 
-# Copy the Gradle wrapper and settings files
+# Copy the Gradle wrapper and necessary files from the root
 COPY gradlew gradlew
 COPY gradle gradle
 COPY build.gradle settings.gradle ./
-COPY app/src/ app/src/
+COPY gradle.properties gradle.properties
+
+# Copy the source code for all modules (from root)
+COPY . .
 
 # Grant execution permission to the Gradle wrapper
 RUN chmod +x gradlew
 
-# Build the project
-RUN ./gradlew clean build --no-daemon
+# Run the Gradle build from the root (including skipping tests if necessary)
+RUN ./gradlew clean build --no-daemon -x test
 
-# Step 2: Use the JRE image for runtime
+# Step 2: Create a minimal image with JRE and the built app
 FROM eclipse-temurin:21-jre
+
+WORKDIR /opt
 
 # Copy the built JAR from the build stage
 COPY --from=build /app/app/build/libs/app.jar /opt/app.jar
