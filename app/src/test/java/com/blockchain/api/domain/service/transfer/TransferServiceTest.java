@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
 import com.blockchain.api.domain.service.balance.BalanceService;
-import com.blockchain.api.domain.service.blockhash.BlockhashClient;
+import com.blockchain.api.domain.service.blockhash.BlockHashService;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +17,7 @@ import org.p2p.solanaj.core.Account;
 class TransferServiceTest {
   @Mock private TransferClient transferClient;
   @Mock private AccountLoaderService accountLoaderService;
-  @Mock private BlockhashClient blockhashClient;
+  @Mock private BlockHashService blockHashService;
   @Mock private LogWebSocketNotification listener;
   @Mock private BalanceService balanceService;
   @InjectMocks private TransferService transferService;
@@ -33,8 +33,8 @@ class TransferServiceTest {
             .build();
 
     when(accountLoaderService.loadSenderKeypair()).thenReturn(mockAccount);
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("latestBlockhash"));
+    when(blockHashService.getBlockhash())
+        .thenReturn("latestBlockhash");
 
     var mockFuture = CompletableFuture.completedFuture("transactionSignature");
     when(transferClient.transferFunds(
@@ -56,7 +56,7 @@ class TransferServiceTest {
             eq(request.amount()),
             eq("latestBlockhash"),
             eq(listener));
-    verify(blockhashClient).getLatestBlockhash();
+    verify(blockHashService).getBlockhash();
     verify(balanceService)
         .ensureSufficientBalanceForTransfer(
             eq(mockAccount), eq(request.to()), eq(request.amount()));
@@ -73,8 +73,8 @@ class TransferServiceTest {
             .build();
 
     when(accountLoaderService.loadSenderKeypair()).thenReturn(mockAccount);
-    when(blockhashClient.getLatestBlockhash())
-        .thenReturn(CompletableFuture.completedFuture("latestBlockhash"));
+    when(blockHashService.getBlockhash())
+        .thenReturn("latestBlockhash");
 
     CompletableFuture<String> mockFuture = new CompletableFuture<>();
     mockFuture.completeExceptionally(new RuntimeException("Transfer failed"));
@@ -97,7 +97,7 @@ class TransferServiceTest {
             eq(request.amount()),
             eq("latestBlockhash"),
             eq(listener));
-    verify(blockhashClient).getLatestBlockhash();
+    verify(blockHashService).getBlockhash();
     verify(balanceService)
         .ensureSufficientBalanceForTransfer(
             eq(mockAccount), eq(request.to()), eq(request.amount()));

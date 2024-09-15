@@ -2,36 +2,60 @@
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Puneethkumarck_crypto-api&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Puneethkumarck_crypto-api)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Puneethkumarck_crypto-api&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Puneethkumarck_crypto-api)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Puneethkumarck_crypto-api&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Puneethkumarck_crypto-api)
-
 # Crypto API
 
-This API provides operations for interacting with the Solana blockchain, allowing users to check account balances and transfer SOL tokens between wallets. Designed with simplicity and performance in mind, the API includes key features like balance validation and automatic SOL airdrops in case of insufficient funds.
+The Crypto API provides seamless interaction with the Solana blockchain, allowing users to check balances, transfer SOL tokens, and handle airdrops in the event of insufficient funds.
 
-## Key Features:
-- **Get Balance:** Retrieve the SOL balance for any given Solana wallet address.
-- **Transfer SOL:** Initiate a transfer between two Solana wallets with built-in validation for both sender and receiver accounts.
-    - If either the sender or receiver has insufficient funds, the system automatically airdrops SOL before completing the transaction.
+## Table of Contents
+- [Key Features](#key-features)
+- [Technologies Used](#technologies-used)
+- [Transfer SOL Flow](#transfer-sol-flow)
+  - [Components](#components)
+  - [System Diagram](#system-diagram)
+  - [Sequence Diagram](#sequence-diagram)
+- [Running the Application](#running-the-application)
+- [Testing the API](#testing-the-api)
+  - [Get Balance](#1-get-balance)
+  - [Transfer SOL](#2-transfer-sol)
+- [Solana Transaction Details](#solana-transaction-details)
 
-## Technologies Used:
-- **Java 21**
-- **Spring Boot 3.3.3**
-- **Hexagonal Architecture:** Ensures a clean separation between core business logic and infrastructure concerns, enabling maintainability and flexibility.
-- **WireMock:** Used for mocking external API calls during testing.
-- **SpringDoc OpenAPI:** Automatically generates OpenAPI documentation for the API, ensuring clear and accurate API specifications.
-- **GitHub Actions:** Used for automating tasks like builds, tests, and SonarCloud analysis.
-- **SonarCloud:** Ensures code quality, performs static code analysis, and helps maintain high coding standards.
-- **Codacy:** Provides additional code quality analysis and enforces coding standards.
+## Key Features
+- **Check Balance**: Retrieve the SOL balance for any Solana wallet.
+- **Transfer SOL**: Transfer SOL between two wallets with automatic validation and SOL airdrop for insufficient funds.
+  - Both sender and receiver balances are checked.
+  - If funds are insufficient, an airdrop is automatically initiated to complete the transaction.
 
-This API is REST-based, and it follows the OpenAPI v3.0.1 specification, ensuring interoperability and ease of integration.
+## Technologies Used
+- **Java 21**: Leveraging the latest features for performance and scalability.
+- **Spring Boot 3.3.3**: Simplifies building production-ready applications.
+- **Hexagonal Architecture**: Clean separation between core logic and infrastructure for better maintainability.
+- **WireMock**: For mocking API interactions during tests.
+- **SpringDoc OpenAPI**: Auto-generates OpenAPI documentation for improved API interoperability.
+- **GitHub Actions**: CI/CD pipelines for automated testing and quality analysis.
+- **SonarCloud**: Ensures code quality and security with continuous static analysis.
+- **Codacy**: Provides additional insights into code quality.
+
+## Transfer SOL Flow
+
+### Components
+![component_diagram.png](docs/component_diagram.png)
+
+### System Diagram
+The diagram below illustrates the interaction between components within the hexagonal architecture for SOL transfers.
+
+![hexagonal.png](docs/hexagonal.png)
+
+### Sequence Diagram
+This diagram details the sequence of operations that occur during a SOL transfer.
+
+![sequencediagram.png](docs/sequence_diagram.png)
 
 ## Running the Application
-
 To run the Crypto API locally, use the following Gradle command:
 
 ```bash
 ./gradlew :app:bootRun
 ```
-
 # Testing the API
 
 You can test the API functionality using curl commands as shown below.
@@ -119,30 +143,30 @@ To verify the transaction:
 This section shows the Solana accounts involved in the transaction and how their balances changed.
 
 1. **p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75**
-  - **Change (SOL):** -◎0.000006 (This account paid the fee for the transaction)
-  - **Post Balance (SOL):** ◎1.998435
-  - This is the **fee payer** for the transaction, and also the **sender** of the SOL in this transaction.
+- **Change (SOL):** -◎0.000006 (This account paid the fee for the transaction)
+- **Post Balance (SOL):** ◎1.998435
+- This is the **fee payer** for the transaction, and also the **sender** of the SOL in this transaction.
 
 2. **81e58SU8EHdBmSnETExsCwurbfWeCbNg9UoAFmKPyyj3**
-  - **Change (SOL):** +◎0.000001
-  - **Post Balance (SOL):** ◎1.00078
-  - This is the **recipient** of the transferred SOL.
+- **Change (SOL):** +◎0.000001
+- **Post Balance (SOL):** ◎1.00078
+- This is the **recipient** of the transferred SOL.
 
 3. **System Program**
-  - This is the built-in Solana program used to handle basic tasks like transferring SOL between accounts.
+- This is the built-in Solana program used to handle basic tasks like transferring SOL between accounts.
 
 ---
 
 ### Instruction
 
 1. **System Program: Transfer**
-  - This indicates that the transaction involved the **System Program** for transferring SOL.
+- This indicates that the transaction involved the **System Program** for transferring SOL.
 
-  - **From Address:** p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75 (Sender)
-  - **To Address:** 81e58SU8EHdBmSnETExsCwurbfWeCbNg9UoAFmKPyyj3 (Recipient)
-  - **Transfer Amount (SOL):** ◎0.000001
+- **From Address:** p8guAeE7naqQcT2JMCp8Q376MLyzt5XynfGw3uCHM75 (Sender)
+- **To Address:** 81e58SU8EHdBmSnETExsCwurbfWeCbNg9UoAFmKPyyj3 (Recipient)
+- **Transfer Amount (SOL):** ◎0.000001
 
-  - This instruction shows that 0.000001 SOL was transferred from the sender to the recipient.
+- This instruction shows that 0.000001 SOL was transferred from the sender to the recipient.
 
 ---
 
@@ -158,4 +182,9 @@ This section shows the Solana accounts involved in the transaction and how their
 - The transaction was **finalized** and is now a permanent part of the Solana blockchain, confirmed at **slot 325,730,164**.
 
 
+### References
+- [Solana Documentation](https://docs.solana.com/)
+- [Solana Explorer](https://explorer.solana.com/)
+- [Solana Whitepaper](https://solana.com/solana-whitepaper.pdf)
+- [Quicknode](https://www.quicknode.com/guides/solana-development/getting-started/solana-fundamentals-reference-guide)
 

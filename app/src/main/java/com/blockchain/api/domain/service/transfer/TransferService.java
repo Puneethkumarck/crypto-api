@@ -3,6 +3,7 @@ package com.blockchain.api.domain.service.transfer;
 import static com.blockchain.api.application.validator.SolanaAddressValidator.isValidAddressOrThrow;
 
 import com.blockchain.api.domain.service.balance.BalanceService;
+import com.blockchain.api.domain.service.blockhash.BlockHashService;
 import com.blockchain.api.domain.service.blockhash.BlockhashClient;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class TransferService {
 
   private final TransferClient transferClient;
 
-  private final BlockhashClient blockhashClient;
+  private final BlockHashService blockHashService;
 
   private final AccountLoaderService accountLoaderService;
 
@@ -55,6 +56,6 @@ public class TransferService {
   }
 
   private String getLatestBlockhash() {
-    return blockhashClient.getLatestBlockhash().join();
+    return blockHashService.getBlockhash();
   }
 }
