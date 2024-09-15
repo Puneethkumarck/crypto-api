@@ -7,8 +7,6 @@ plugins {
 	id 'jacoco'
 }
 
-version = '0.0.1-SNAPSHOT'
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
@@ -24,6 +22,10 @@ allprojects {
 
 jacoco {
 	toolVersion = "0.8.12"
+}
+
+jar {
+	archiveFileName = "app.jar"
 }
 
 subprojects {
