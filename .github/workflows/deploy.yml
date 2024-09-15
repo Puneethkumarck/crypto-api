@@ -36,17 +36,10 @@ jobs:
       - name: Log in to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Make sure to add your DockerHub username in Secrets
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Make sure to add your DockerHub password in Secrets
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
         run: |
           docker build -t puneethkumarck/crypto-api-app:latest -f deploy/docker/Dockerfile .
           docker push puneethkumarck/crypto-api-app:latest
-
-      - name: Deploy to Railway
-        run: |
-          curl -sSL https://cli.railway.app/install.sh | sh
-          railway up --service "crypto-api-app"
-        env:
-          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
