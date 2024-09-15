@@ -1,0 +1,52 @@
+name: Build and Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main  # This workflow will run when you push to the main branch
+  workflow_dispatch: # Allows the workflow to be triggered manually from the GitHub Actions tab
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: gradle-${{ runner.os }}
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Make sure to add your DockerHub username in Secrets
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Make sure to add your DockerHub password in Secrets
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t puneethkumarck/crypto-api-app:latest -f deploy/docker/Dockerfile .
+          docker push puneethkumarck/crypto-api-app:latest
+
+      - name: Deploy to Railway
+        run: |
+          curl -sSL https://cli.railway.app/install.sh | sh
+          railway up --service "crypto-api-app"
+        env:
+          RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
