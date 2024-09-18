@@ -40,6 +40,9 @@ public class EthereumITest {
 
     // then
     assertNotNull(result);
-    log.info("original value {} Gas price: {}", result,Convert.fromWei(new BigDecimal(result), Convert.Unit.ETHER));
+    log.info(
+        "original value {} Gas price: {}",
+        result,
+        Convert.fromWei(new BigDecimal(result), Convert.Unit.ETHER));
   }
 }
