@@ -3,6 +3,7 @@ package com.blockchain.api.application;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.blockchain.api.domain.service.balance.BalanceClient;
+import com.blockchain.api.domain.service.transfer.TransferClient;
 import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.web3j.utils.Convert;
 public class EthereumITest {
   @Autowired private BalanceClient balanceClient;
 
+  @Autowired private TransferClient transferClient;
+
   @Test
   void shouldReturnBalance() {
     // given
@@ -28,5 +31,18 @@ public class EthereumITest {
     // then
     assertNotNull(result);
     log.info("Balance BigInteger: {}", Convert.fromWei(new BigDecimal(result), Convert.Unit.ETHER));
+  }
+
+  @Test
+  void shouldGetGasPrice() {
+    // when
+    var result = transferClient.getGasPrice().join();
+
+    // then
+    assertNotNull(result);
+    log.info(
+        "original value {} Gas price: {}",
+        result,
+        Convert.fromWei(new BigDecimal(result), Convert.Unit.ETHER));
   }
 }
