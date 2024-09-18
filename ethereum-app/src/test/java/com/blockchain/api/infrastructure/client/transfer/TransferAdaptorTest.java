@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.blockchain.api.application.exception.GasPriceRetrievalException;
 import com.blockchain.api.application.exception.NonceRetrievalException;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
@@ -90,5 +91,23 @@ class TransferAdaptorTest {
 
     // then
     assertThat(result.join()).isEqualTo(gasPrice);
+  }
+
+  @Test
+  void shouldThrowGasPriceRetrievalException_whenGasPriceRequestFails() {
+    // given
+    when(rpcClient.ethGasPrice()).thenReturn(mock(Request.class));
+    when(rpcClient.ethGasPrice().sendAsync())
+        .thenReturn(CompletableFuture.failedFuture(new RuntimeException("RPC error")));
+
+    // when
+    var result = transferAdaptor.getGasPrice();
+
+    // then
+    assertThatThrownBy(result::join)
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(GasPriceRetrievalException.class)
+        .hasRootCauseInstanceOf(RuntimeException.class)
+        .hasRootCauseMessage("RPC error");
   }
 }
