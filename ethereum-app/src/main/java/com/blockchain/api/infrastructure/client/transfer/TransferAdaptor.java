@@ -1,5 +1,6 @@
 package com.blockchain.api.infrastructure.client.transfer;
 
+import com.blockchain.api.application.exception.GasPriceRetrievalException;
 import com.blockchain.api.application.exception.NonceRetrievalException;
 import com.blockchain.api.domain.service.transfer.TransferClient;
 import com.blockchain.api.domain.service.transfer.TransferRequest;
@@ -37,6 +38,23 @@ public class TransferAdaptor implements TransferClient {
             throwable -> {
               log.error("Error occurred while fetching nonce for address: {}", address, throwable);
               throw NonceRetrievalException.withAddress(address);
+            });
+  }
+
+  @Override
+  public CompletableFuture<BigInteger> getGasPrice() {
+    return rpcClient
+        .ethGasPrice()
+        .sendAsync()
+        .thenApply(
+            gasPrice -> {
+              log.info("Gas price request completed successfully");
+              return gasPrice.getGasPrice();
+            })
+        .exceptionally(
+            throwable -> {
+              log.error("Error occurred while fetching gas price", throwable);
+              throw GasPriceRetrievalException.build(throwable);
             });
   }
 }

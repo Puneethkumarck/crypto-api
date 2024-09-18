@@ -1,5 +1,6 @@
 package com.blockchain.api.infrastructure.client.transfer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.Request;
+import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,5 +73,22 @@ class TransferAdaptorTest {
         .hasRootCauseMessage("Unable to retrieve nonce for address: %s".formatted(address));
 
     verify(rpcClient).ethGetTransactionCount(eq(address), eq(DefaultBlockParameterName.LATEST));
+  }
+
+  @Test
+  void shouldRetrieveGasPrice() {
+    // given
+    when(rpcClient.ethGasPrice()).thenReturn(mock(Request.class));
+    var ethGasPrice = mock(EthGasPrice.class);
+    var gasPrice = BigInteger.valueOf(42);
+    when(ethGasPrice.getGasPrice()).thenReturn(gasPrice);
+    when(rpcClient.ethGasPrice().sendAsync())
+        .thenReturn(CompletableFuture.completedFuture(ethGasPrice));
+
+    // when
+    var result = transferAdaptor.getGasPrice();
+
+    // then
+    assertThat(result.join()).isEqualTo(gasPrice);
   }
 }

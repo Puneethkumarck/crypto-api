@@ -7,4 +7,6 @@ public interface TransferClient {
   void transfer(TransferRequest transferRequest);
 
   CompletableFuture<BigInteger> getNonce(String address);
+
+  CompletableFuture<BigInteger> getGasPrice();
 }
