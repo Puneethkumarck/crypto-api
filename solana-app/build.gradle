@@ -12,6 +12,10 @@ springBoot {
     }
 }
 
+jar {
+    archiveFileName = "app.jar"
+}
+
 dependencies {
     implementation project(':api')
     implementation 'org.springframework.boot:spring-boot-starter-validation'

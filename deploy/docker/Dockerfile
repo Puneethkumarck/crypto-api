@@ -24,7 +24,7 @@ FROM eclipse-temurin:21.0.4_7-jre
 WORKDIR /opt
 
 # Copy the built JAR from the build stage
-COPY --from=build /app/app/build/libs/app.jar /opt/app.jar
+COPY --from=build /app/solana-app/build/libs/app.jar /opt/app.jar
 
 # Copy the entrypoint script
 COPY ./deploy/docker/entrypoint.sh /opt/entrypoint.sh
