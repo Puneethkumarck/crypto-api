@@ -15,4 +15,9 @@ public class BalanceService {
   public BigInteger getEthereumBalance(String address) {
     return balanceClient.getBalance(address).join();
   }
+
+  public boolean isBalanceSufficient(String address, BigInteger amount) {
+    var balance = getEthereumBalance(address);
+    return balance.compareTo(amount) >= 0;
+  }
 }
