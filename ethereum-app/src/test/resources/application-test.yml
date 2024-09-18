@@ -1,0 +1,10 @@
+rpc:
+  client:
+    base:
+      ethereum:
+        url: "https://patient-divine-aura.ethereum-sepolia.quiknode.pro/c5b3fafdf193c76117612895178bf8c0230e03ed"
+
+  logging:
+    level:
+      "com.github.tomakehurst.wiremock": "TRACE"
+      "org.web3j.protocol.http": "DEBUG"

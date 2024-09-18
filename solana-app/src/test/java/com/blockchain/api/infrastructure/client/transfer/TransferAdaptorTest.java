@@ -106,13 +106,12 @@ class TransferAdaptorTest {
       await()
           .atMost(Duration.ofSeconds(5))
           .untilAsserted(
-              () -> {
-                assertThatThrownBy(result::join)
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(SolanaTransactionException.class)
-                    .hasRootCauseInstanceOf(RuntimeException.class)
-                    .hasRootCauseMessage("RPC error");
-              });
+              () ->
+                  assertThatThrownBy(result::join)
+                      .isInstanceOf(CompletionException.class)
+                      .hasCauseInstanceOf(SolanaTransactionException.class)
+                      .hasRootCauseInstanceOf(RuntimeException.class)
+                      .hasRootCauseMessage("RPC error"));
 
       verify(subscriptionWebSocketClient, never()).signatureSubscribe(anyString(), any());
     }
@@ -138,13 +137,12 @@ class TransferAdaptorTest {
       await()
           .atMost(Duration.ofSeconds(5))
           .untilAsserted(
-              () -> {
-                assertThatThrownBy(futureTransfer::join)
-                    .isInstanceOf(CompletionException.class)
-                    .hasCauseInstanceOf(SolanaTransactionException.class)
-                    .hasRootCauseInstanceOf(RuntimeException.class)
-                    .hasRootCauseMessage("Generic error");
-              });
+              () ->
+                  assertThatThrownBy(futureTransfer::join)
+                      .isInstanceOf(CompletionException.class)
+                      .hasCauseInstanceOf(SolanaTransactionException.class)
+                      .hasRootCauseInstanceOf(RuntimeException.class)
+                      .hasRootCauseMessage("Generic error"));
 
       verify(subscriptionWebSocketClient, never()).signatureSubscribe(anyString(), any());
     }

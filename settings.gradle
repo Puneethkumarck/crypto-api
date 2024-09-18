@@ -1,4 +1,5 @@
 rootProject.name = 'crypto-api'
 include 'api'
-include 'app'
+include 'solana-app'
+include 'ethereum-app'
 

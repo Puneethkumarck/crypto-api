@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: ethereum-api
+
+  logging:
+    level:
+      "com.github.tomakehurst.wiremock": "TRACE"
+
+rpc:
+  client:
+    base:
+      ethereum:
+        url: "https://patient-divine-aura.ethereum-sepolia.quiknode.pro/c5b3fafdf193c76117612895178bf8c0230e03ed"
