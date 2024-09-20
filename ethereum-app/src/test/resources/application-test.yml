@@ -2,7 +2,7 @@ rpc:
   client:
     base:
       ethereum:
-        url: "https://patient-divine-aura.ethereum-sepolia.quiknode.pro/c5b3fafdf193c76117612895178bf8c0230e03ed"
+        url: "aHR0cHM6Ly9wYXRpZW50LWRpdmluZS1hdXJhLmV0aGVyZXVtLXNlcG9saWEucXVpa25vZGUucHJvL2M1YjNmYWZkZjE5M2M3NjExNzYxMjg5NTE3OGJmOGMwMjMwZTAzZWQ="
 
   logging:
     level:
