@@ -17,7 +17,7 @@ class CredentialServiceITest {
   @Autowired private CredentialService credentialService;
 
   @Test
-  void shouldReturnTrue_whenAddressIsValid() {
+  void shouldReturnTrueWhenAddressIsValid() {
 
     // when
     var result = credentialService.getCredential();

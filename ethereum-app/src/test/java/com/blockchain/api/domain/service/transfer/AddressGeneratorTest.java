@@ -33,7 +33,7 @@ public class AddressGeneratorTest {
 
   @SneakyThrows
   @Test
-  void generate_ethereum_address() {
+  void generateEthereumAddress() {
     ECGenParameterSpec ecGenParameterSpec = new ECGenParameterSpec("secp256k1");
     keyPairGenerator.initialize(ecGenParameterSpec, new SecureRandom());
     KeyPair keyPair = keyPairGenerator.generateKeyPair();

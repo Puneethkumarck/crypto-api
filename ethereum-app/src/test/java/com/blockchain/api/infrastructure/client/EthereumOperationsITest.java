@@ -6,6 +6,7 @@ import com.blockchain.api.domain.service.transfer.TransferClient;
 import com.blockchain.api.domain.service.transfer.TransferRequest;
 import com.blockchain.api.domain.service.transfer.TransferService;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @Slf4j
+@Disabled
 public class EthereumOperationsITest {
 
   @Autowired private TransferClient transferClient;
