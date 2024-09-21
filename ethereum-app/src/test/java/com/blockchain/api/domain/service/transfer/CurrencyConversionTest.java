@@ -1,12 +1,11 @@
 package com.blockchain.api.domain.service.transfer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.math.BigDecimal;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.web3j.utils.Convert;
-
-import java.math.BigDecimal;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 public class CurrencyConversionTest {

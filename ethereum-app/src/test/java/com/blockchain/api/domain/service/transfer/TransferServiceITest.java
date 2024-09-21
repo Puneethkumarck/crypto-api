@@ -28,7 +28,6 @@ class TransferServiceITest extends BaseEthereumTest {
     stubGasPrice();
     stubSendTransaction();
 
-
     // when
     transferService.transfer(transferRequest);
   }
