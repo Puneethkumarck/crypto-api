@@ -8,3 +8,8 @@ rpc:
     level:
       "com.github.tomakehurst.wiremock": "TRACE"
       "org.web3j.protocol.http": "DEBUG"
+
+
+ethereum:
+  secret:
+    keypair: "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQg27O3dgMNXurJcSQYYUsrN2cubL7DJRVBbEYoawUsC5mgBwYFK4EEAAqhRANCAATcP3GFD3voS/8QPk9M8NmBxyMXWnI54ghC5H+6Ci/ATQZWWuhs/IoFlKqTOTm1DE7keFxOM9eSYkXSdZLJ9xGZ"

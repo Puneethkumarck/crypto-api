@@ -50,7 +50,7 @@ class TransferAdaptorTest {
     assertEquals(expectedNonce, nonceFuture.get());
     verify(rpcClient).ethGetTransactionCount(eq(address), eq(DefaultBlockParameterName.LATEST));
     verify(ethGetTransactionCountRequest).sendAsync();
-    verify(ethGetTransactionCount).getTransactionCount();
+    verify(ethGetTransactionCount, times(2)).getTransactionCount();
   }
 
   @Test
@@ -108,6 +108,27 @@ class TransferAdaptorTest {
         .isInstanceOf(CompletionException.class)
         .hasCauseInstanceOf(GasPriceRetrievalException.class)
         .hasRootCauseInstanceOf(RuntimeException.class)
+        .hasRootCauseMessage("RPC error");
+  }
+
+  @Test
+  void shouldThrowTransactionFailureException_whenTransactionFails() {
+    // given
+    var transaction = "signedTransaction";
+    var mockRequest = mock(Request.class);
+    when(rpcClient.ethSendRawTransaction(eq(transaction))).thenReturn(mockRequest);
+    when(mockRequest.sendAsync())
+        .thenReturn(CompletableFuture.failedFuture(new RuntimeException("RPC error")));
+
+    // when and then
+    var thrownException =
+        assertThrows(CompletionException.class, () -> transferAdaptor.transfer(transaction));
+
+    // then
+    assertThat(thrownException)
+        .isInstanceOf(CompletionException.class)
+        .hasMessageContaining(transaction)
+        .hasCauseInstanceOf(RuntimeException.class)
         .hasRootCauseMessage("RPC error");
   }
 }

@@ -13,7 +13,7 @@ import org.web3j.utils.Convert;
 public class TransactionFeeService {
 
   private final TransferClient transferClient;
-  private static final BigDecimal GAS_LIMIT = new BigDecimal("21000"); // For Simple Transactions
+  public static final BigDecimal GAS_LIMIT = new BigDecimal("21000"); // For Simple Transactions
 
   public BigDecimal getTransactionFee() {
     var gasPriceInWei = transferClient.getGasPrice().join();

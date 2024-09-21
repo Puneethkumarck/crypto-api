@@ -1,0 +1,8 @@
+Get Nonce
+{"jsonrpc":"2.0","method":"eth_getTransactionCount","params":["0xbd3a24c4447e0aacdf1000d478186e16ba2c013a","latest"],"id":0}
+
+{"jsonrpc":"2.0","method":"eth_getBalance","params":["0xbd3a24c4447e0aacdf1000d478186e16ba2c013a","latest"],"id":0}
+
+{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":0}
+
+{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["0xf86f038501ab2cb59a825208945d940f3947c4ab1fbdbf1f540a10019931065f7a872386f26fc10000808401546d71a0ac972820a15cdcc415e28b3cca468f58d89dc07eb233525dbc96935c91ba7275a02dc841d7f82be7f52ea1bf2e8a7792af31f4b299d7c598e05dae7bdba20c1e6a"],"id":2}
