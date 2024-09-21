@@ -50,7 +50,7 @@ class TransferAdaptorTest {
     assertEquals(expectedNonce, nonceFuture.get());
     verify(rpcClient).ethGetTransactionCount(eq(address), eq(DefaultBlockParameterName.LATEST));
     verify(ethGetTransactionCountRequest).sendAsync();
-    verify(ethGetTransactionCount).getTransactionCount();
+    verify(ethGetTransactionCount, times(2)).getTransactionCount();
   }
 
   @Test
