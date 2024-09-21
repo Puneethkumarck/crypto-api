@@ -1,11 +1,12 @@
 package com.blockchain;
 
-import lombok.extern.slf4j.Slf4j;
+import com.blockchain.api.domain.service.transfer.EthereumConfigProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@Slf4j
+@EnableConfigurationProperties(EthereumConfigProperties.class)
 public class EthereumApiApplication {
 
   public static void main(String[] args) {

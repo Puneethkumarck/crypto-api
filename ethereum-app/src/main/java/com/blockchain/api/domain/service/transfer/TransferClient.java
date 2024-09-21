@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 
 public interface TransferClient {
-  void transfer(TransferRequest transferRequest);
+  void transfer(String transaction);
 
   CompletableFuture<BigInteger> getNonce(String address);
 

@@ -42,4 +42,40 @@ public abstract class BaseEthereumTest {
                     .withHeader("Content-Type", "application/json")
                     .withBodyFile("stub/get_balance_response_ethereum.json")));
   }
+
+  protected static void stubGetNonce() {
+    WIRE_MOCK_RULE.stubFor(
+        WireMock.post(WireMock.urlEqualTo("/"))
+            .withRequestBody(
+                WireMock.matchingJsonPath("$.method", WireMock.equalTo("eth_getTransactionCount")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBodyFile("stub/get_nonce_response_ethereum.json")));
+  }
+
+  protected static void stubGasPrice() {
+    WIRE_MOCK_RULE.stubFor(
+        WireMock.post(WireMock.urlEqualTo("/"))
+            .withRequestBody(
+                WireMock.matchingJsonPath("$.method", WireMock.equalTo("eth_gasPrice")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBodyFile("stub/get_gasprice_response_ethereum.json")));
+  }
+
+  protected static void stubSendTransaction() {
+    WIRE_MOCK_RULE.stubFor(
+        WireMock.post(WireMock.urlEqualTo("/"))
+            .withRequestBody(
+                WireMock.matchingJsonPath("$.method", WireMock.equalTo("eth_sendRawTransaction")))
+            .willReturn(
+                WireMock.aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBodyFile("stub/send_transaction_response_ethereum.json")));
+  }
 }
