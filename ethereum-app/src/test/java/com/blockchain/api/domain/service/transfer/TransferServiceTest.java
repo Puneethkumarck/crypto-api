@@ -44,7 +44,8 @@ class TransferServiceTest {
     when(transferClient.getNonce(fromAddress)).thenReturn(completedFuture(BigInteger.ONE));
     when(transferClient.getGasPrice()).thenReturn(completedFuture(BigInteger.ONE));
     when(credentialService.getCredential()).thenReturn(Credentials.create("0x123"));
-    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.1"))).thenReturn(true);
+    when(transactionFeeService.getTransactionFee()).thenReturn(new BigDecimal("0.1"));
+    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.2"))).thenReturn(true);
 
     // when
     transferService.transfer(transactionRequest);
@@ -66,7 +67,8 @@ class TransferServiceTest {
     when(transferClient.getNonce(fromAddress))
         .thenReturn(failedFuture(new NonceRetrievalException(address)));
     when(credentialService.getCredential()).thenReturn(Credentials.create("0x123"));
-    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.1"))).thenReturn(true);
+    when(transactionFeeService.getTransactionFee()).thenReturn(new BigDecimal("0.1"));
+    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.2"))).thenReturn(true);
 
     // when
     var thrownException =
@@ -91,7 +93,9 @@ class TransferServiceTest {
 
     when(transferClient.getNonce(fromAddress)).thenReturn(completedFuture(BigInteger.ONE));
     when(credentialService.getCredential()).thenReturn(Credentials.create("0x123"));
-    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.1"))).thenReturn(true);
+    when(transactionFeeService.getTransactionFee()).thenReturn(new BigDecimal("0.1"));
+    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.2"))).thenReturn(true);
+    when(transferClient.getGasPrice()).thenReturn(failedFuture(new RuntimeException("RPC error")));
     when(transferClient.getGasPrice())
         .thenReturn(CompletableFuture.failedFuture(new RuntimeException("RPC error")));
 

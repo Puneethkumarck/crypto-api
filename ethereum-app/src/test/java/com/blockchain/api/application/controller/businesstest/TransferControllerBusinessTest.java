@@ -92,7 +92,7 @@ public class TransferControllerBusinessTest extends BaseEthereumTest {
     var transferRequestDto =
         EthTransferRequestDto.builder()
             .to("0x5d940f3947c4ab1fbdbf1f540a10019931065f7a")
-            .amount("0.1")
+            .amount("0.0001")
             .build();
     stubGetNonce();
     stubGasPrice();

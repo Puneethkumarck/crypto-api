@@ -30,8 +30,10 @@ public class TransferService {
 
   public void transfer(TransferRequest transactionRequest) {
     var toAddress = transactionRequest.to();
+    var transactionFee = transactionFeeService.getTransactionFee();
     var amount = transactionRequest.amount();
-    isBalanceSufficient(amount);
+    var totalAmount = new BigDecimal(amount).add(transactionFee);
+    isBalanceSufficient(totalAmount);
     var fromAddress = credentialService.getCredential().getAddress();
     var nonce = transferClient.getNonce(fromAddress).join();
     var gasPrice = transferClient.getGasPrice().join();
@@ -69,9 +71,9 @@ public class TransferService {
         transaction, SEPOLIA_CHAIN_ID, credentialService.getCredential());
   }
 
-  private void isBalanceSufficient(String amount) {
+  private void isBalanceSufficient(BigDecimal amount) {
     var toAddress = credentialService.getCredential().getAddress();
-    if (!balanceService.isBalanceSufficient(toAddress, new BigDecimal(amount))) {
+    if (!balanceService.isBalanceSufficient(toAddress, amount)) {
       throw InsufficientBalanceException.create(
           "Insufficient balance for address: %s".formatted(toAddress));
     }
