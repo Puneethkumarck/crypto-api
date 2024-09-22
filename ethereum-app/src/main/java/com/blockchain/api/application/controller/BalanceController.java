@@ -26,7 +26,7 @@ import org.web3j.crypto.WalletUtils;
 @Tag(
     name = "Ethereum Balance",
     description = "Operations related to fetching Ethereum account balances")
-public class EthereumBalanceController {
+public class BalanceController {
 
   private final BalanceDtoMapper mapper;
   private final BalanceService balanceService;
