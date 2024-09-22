@@ -6,6 +6,6 @@ public class InvalidAddressException extends RuntimeException {
   }
 
   public static InvalidAddressException withAddress(String address) {
-    return new InvalidAddressException("Invalid address:%s".formatted(address));
+    return new InvalidAddressException("Invalid address: %s".formatted(address));
   }
 }

@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.blockchain.api.application.exception.NonceRetrievalException;
+import com.blockchain.api.domain.service.balance.BalanceService;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -26,6 +28,8 @@ class TransferServiceTest {
 
   @Mock private CredentialService credentialService;
 
+  @Mock private BalanceService balanceService;
+
   @InjectMocks private TransferService transferService;
 
   @Test
@@ -40,6 +44,7 @@ class TransferServiceTest {
     when(transferClient.getNonce(fromAddress)).thenReturn(completedFuture(BigInteger.ONE));
     when(transferClient.getGasPrice()).thenReturn(completedFuture(BigInteger.ONE));
     when(credentialService.getCredential()).thenReturn(Credentials.create("0x123"));
+    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.1"))).thenReturn(true);
 
     // when
     transferService.transfer(transactionRequest);
@@ -61,6 +66,7 @@ class TransferServiceTest {
     when(transferClient.getNonce(fromAddress))
         .thenReturn(failedFuture(new NonceRetrievalException(address)));
     when(credentialService.getCredential()).thenReturn(Credentials.create("0x123"));
+    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.1"))).thenReturn(true);
 
     // when
     var thrownException =
@@ -85,6 +91,7 @@ class TransferServiceTest {
 
     when(transferClient.getNonce(fromAddress)).thenReturn(completedFuture(BigInteger.ONE));
     when(credentialService.getCredential()).thenReturn(Credentials.create("0x123"));
+    when(balanceService.isBalanceSufficient(fromAddress, new BigDecimal("0.1"))).thenReturn(true);
     when(transferClient.getGasPrice())
         .thenReturn(CompletableFuture.failedFuture(new RuntimeException("RPC error")));
 

@@ -26,6 +26,7 @@ class TransferServiceITest extends BaseEthereumTest {
             .build();
     stubGetNonce();
     stubGasPrice();
+    stubGetBalance();
     stubSendTransaction();
 
     // when
