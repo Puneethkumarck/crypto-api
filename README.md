@@ -15,11 +15,16 @@ The Crypto API provides seamless interaction with the Solana blockchain, allowin
   - [Components](#components)
   - [System Diagram](#system-diagram)
   - [Sequence Diagram](#sequence-diagram)
+- [Transfer Ethereum Flow](#transfer-ethereum-flow)
+  - [Components](#components)
+  - [System Diagram](#system-diagram)
+  - [Sequence Diagram](#sequence-diagram)
 - [Running the Application](#running-the-application)
 - [Testing the API](#testing-the-api)
   - [Get Balance](#1-get-balance)
   - [Transfer SOL](#2-transfer-sol)
-- [Solana Transaction Details](#solana-transaction-details)
+  - [Transfer Ethereum](#3-transfer-ethereum)
+- [Blockchain Transaction Details](#blockchain-transaction-details)
 - [Deployed Application](#deployed-application)
 
 
@@ -54,6 +59,27 @@ This diagram details the sequence of operations that occur during a SOL transfer
 
 ![sequencediagram.png](docs/sequence_diagram.png)
 
+## Transfer Ethereum Flow
+
+### Components
+The Ethereum transfer system uses the following components:
+- **TransferController**: Handles requests for Ethereum balance transfers.
+- **TransferService**: Executes the business logic for transferring Ethereum, including balance checks and signing transactions.
+- **BalanceAdaptor**: Fetches the Ethereum balance of the sender.
+- **TransferAdaptor**: Sends signed Ethereum transactions to the blockchain via Web3j.
+
+![ethereum_hexagonal_diagram.png](docs/ethereum_transfer_hexagonal.png)
+
+### Class Diagram
+This system diagram illustrates the interaction of components during an Ethereum transfer in a Hexagonal Architecture model.
+
+![ethereum_hexagonal_diagram.png](docs/eth_class_diagram.png)
+
+### Sequence Diagram
+The sequence diagram below details the steps for an Ethereum transfer, including address validation, balance checks, and sending the transaction.
+
+![ethereum_sequence_diagram.png](docs/ethereum_squence_diagram.png)
+
 ## Running the Application
 To run the Crypto API locally, use the following Gradle command:
 
@@ -85,7 +111,20 @@ curl --location 'http://localhost:8080/api/v1/transfers' \
 ```
 This will initiate a transfer of 1000 lamports to the specified wallet address.
 
+## 3.Transfer Ethereum
+
+```bash
+curl --location 'http://localhost:8080/api/v1/transfers' \
+--header 'Content-Type: application/json' \
+--data '{
+"to" : "0x5d940f3947c4ab1fbdbf1f540a10019931065f7a",
+"amount" : "0.05"
+}'
+```
+
 ## Verifying the Transaction
+
+### Solana Transaction
 
 Once the transfer has been made, capture the **transaction signature** from the logs.
 
@@ -184,6 +223,122 @@ This section shows the Solana accounts involved in the transaction and how their
 - A transaction fee of **0.000005 SOL** was charged to the sender.
 - The transaction was **finalized** and is now a permanent part of the Solana blockchain, confirmed at **slot 325,730,164**.
 
+---
+### Ethereum Transaction Details
+
+After initiating an Ethereum transfer, you can verify the transaction on the Ethereum blockchain using the transaction hash.
+
+capture the **transaction signature** from the logs.
+
+To verify the transaction:
+
+1. Go to [Ether Scan](https://sepolia.etherscan.io/).
+2. Paste the transaction signature into the search bar.
+3. Press Enter to view the transaction details and confirm the transfer status.
+
+![img.png](docs/eth_transaction_details.png)
+
+### Transaction Hash:
+- **0x7dbf2e5864e4db7ea72aa0dd476a35cd3b10a8e9d58b84032286f491484f2abb**
+  - This is the unique identifier for the transaction, which can be used to track and verify it on the Ethereum blockchain via a block explorer like [Etherscan](https://etherscan.io/tx/0x7dbf2e5864e4db7ea72aa0dd476a35cd3b10a8e9d58b84032286f491484f2abb).
+
+### Status:
+- **Success**
+  - The transaction was processed successfully and is now included in the blockchain.
+
+### Block:
+- **6707629**
+  - The transaction was included in this block on the Ethereum blockchain.
+  - A **block** is a group of transactions that were confirmed and added to the blockchain.
+
+### Block Confirmations:
+- **32103 Block Confirmations**
+  - The number of blocks that have been mined since the block containing this transaction. More confirmations make the transaction more secure and harder to reverse.
+
+### Timestamp:
+- **Sep-17-2024 06:49:00 AM UTC** (5 days ago)
+  - This is the exact date and time when the transaction was included in the blockchain.
+
+---
+
+## Parties Involved
+
+### From:
+- **0x4281eCF07378Ee595C564a59048801330f3084eE**
+  - This is the Ethereum address of the **sender** (the account that initiated the transaction and paid for the gas fees).
+
+### To:
+- **0xbd3a24C4447E0AaCdf1000d478186E16Ba2c013A**
+  - This is the Ethereum address of the **recipient** (the account that received the funds).
+
+---
+
+## Transaction Details
+
+### Value:
+- **0.1 ETH**
+  - The amount of Ether (ETH) transferred from the sender to the recipient. In this case, **0.1 ETH** was sent.
+  - **USD Equivalent**: $0.00 (at the time of transaction)
+
+### Transaction Fee:
+- **0.00001187750844 ETH**
+  - The total amount of gas fees paid by the sender to process the transaction.
+  - **USD Equivalent**: $0.00 (at the time of transaction)
+
+### Gas Price:
+- **0.56559564 Gwei** (0.00000000056559564 ETH)
+  - The price per unit of gas paid in Gwei. The **gas price** fluctuates based on network demand and determines how quickly miners will process the transaction.
+
+### Gas Limit & Usage by Transaction:
+- **Gas Limit**: 60,000
+  - The maximum amount of gas units that the sender was willing to pay for this transaction.
+- **Gas Used**: 21,000
+  - The actual amount of gas consumed by the transaction, which was 35% of the gas limit.
+
+---
+
+## Gas Fees Breakdown
+
+### Gas Fees:
+- **Base Fee**: 0.282877339 Gwei
+  - The base fee is the minimum amount of gas required for this transaction, set by the Ethereum network.
+- **Max Fee**: 0.56559564 Gwei
+  - The maximum gas fee the sender was willing to pay.
+- **Max Priority Fee**: 0.56559564 Gwei
+  - The maximum priority fee offered by the sender to incentivize miners to prioritize this transaction.
+
+### Burnt & Transaction Savings Fees:
+- 🔥 **Burnt**: 0.000005940424119 ETH
+  - Under **EIP-1559**, part of the gas fee is burned (removed from circulation) to reduce Ethereum supply, making the network deflationary.
+- 💸 **Transaction Savings**: 0 ETH
+  - Any savings from unused gas.
+
+---
+
+## Other Transaction Attributes
+
+### Transaction Type:
+- **2 (EIP-1559)**
+  - This transaction follows the **EIP-1559** standard, which introduced dynamic gas fees and the concept of gas burning.
+
+### Nonce:
+- **1278598**
+  - The transaction nonce is a unique number associated with the sender's account. It represents the number of transactions sent from this address.
+
+### Position in Block:
+- **3**
+  - The transaction was the 3rd transaction included in block **6707629**.
+
+---
+
+### Summary:
+- **0.1 ETH** was successfully transferred from `0x4281eCF07378Ee595C564a59048801330f3084eE` to `0xbd3a24C4447E0AaCdf1000d478186E16Ba2c013A`.
+- The transaction incurred a **fee of 0.00001187750844 ETH**.
+- The transaction used **21,000 gas** out of a **60,000 gas limit**.
+- **0.000005940424119 ETH** was burned as part of the EIP-1559 protocol.
+- The transaction is securely confirmed with **32103 block confirmations**.
+
+
 ## Deployed Application
 The application is deployed and accessible [here](https://crypto-api-production-473a.up.railway.app/swagger-ui/index.html).
 
@@ -191,5 +346,6 @@ The application is deployed and accessible [here](https://crypto-api-production-
 - [Solana Documentation](https://docs.solana.com/)
 - [Solana Explorer](https://explorer.solana.com/)
 - [Solana Whitepaper](https://solana.com/solana-whitepaper.pdf)
+- [Ether Scan](https://sepolia.etherscan.io/)
 - [Quicknode](https://www.quicknode.com/guides/solana-development/getting-started/solana-fundamentals-reference-guide)
 
