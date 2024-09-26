@@ -1,0 +1,47 @@
+sequenceDiagram
+    participant Bob as Bob (Leader)
+    participant PoH as Proof of History
+    participant Block as Processed Block
+    participant V1 as Validator 1
+    participant V2 as Validator 2
+    participant V3 as Validator 3
+
+    Note over Bob,PoH: 1. Processing and PoH
+    loop For each transaction
+        Bob->>PoH: Get timestamp
+        PoH-->>Bob: Provide timestamp
+        Bob->>Bob: Process transaction
+        Bob->>Block: Add transaction with timestamp
+    end
+
+    Note over Bob,Block: 2. Block Creation
+    Bob->>Block: Finalize block with PoH data
+
+    Note over Bob,V3: 3. Block Distribution
+    Bob->>V1: Send processed block
+    Bob->>V2: Send processed block
+    Bob->>V3: Send processed block
+
+    Note over V1,V3: 4. Validation
+    V1->>V1: Check transactions
+    V1->>V1: Verify PoH timestamps
+    V2->>V2: Check transactions
+    V2->>V2: Verify PoH timestamps
+    V3->>V3: Check transactions
+    V3->>V3: Verify PoH timestamps
+
+    Note over V1,V3: 5. Consensus
+    V1->>V1: Vote on block
+    V2->>V2: Vote on block
+    V3->>V3: Vote on block
+
+    Note over Bob,V3: 6. Confirmation
+    alt If majority agrees
+        V1->>Bob: Confirm block
+        V2->>Bob: Confirm block
+        V3->>Bob: Confirm block
+    else If majority disagrees
+        V1->>Bob: Reject block
+        V2->>Bob: Reject block
+        V3->>Bob: Reject block
+    end
