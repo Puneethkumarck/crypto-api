@@ -1,0 +1,19 @@
+sequenceDiagram
+participant SenderWallet as Your Wallet
+participant Network as Solana Network
+participant RecipientWallet as Friend's Wallet
+
+    SenderWallet->>Network: Check transaction status
+    Network-->>SenderWallet: Confirm transaction
+
+    Note over SenderWallet: Update UI
+    SenderWallet->>SenderWallet: Show message: "1 SOL sent successfully to your friend!"
+    SenderWallet->>SenderWallet: Update balance: -1 SOL
+
+    Network->>RecipientWallet: Notify of received transaction
+    RecipientWallet->>RecipientWallet: Update balance: +1 SOL
+
+    Note over RecipientWallet: Update UI
+    RecipientWallet->>RecipientWallet: Show notification: "Received 1 SOL"
+
+    Note over SenderWallet,RecipientWallet: Transaction Complete

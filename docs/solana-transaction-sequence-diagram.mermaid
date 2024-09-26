@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant U as User Wallet
+    participant N as Solana Node
+    participant G as Gossip Network
+    participant L as Leader
+    participant V as Validators
+    participant P as Proof of History
+
+    U->>U: Create Transaction
+    U->>U: Sign Transaction
+    U->>N: Submit Signed Transaction
+    N->>N: Validate Transaction
+    N->>G: Propagate Transaction
+    G->>L: Deliver Transaction
+    
+    L->>L: Bundle Transactions
+    L->>P: Record PoH Timestamp
+    L->>L: Process Transactions
+    L->>P: Record PoH Timestamp
+    L->>L: Create Block
+    
+    L->>V: Broadcast Block
+    V->>V: Verify Block
+    V->>V: Vote on Block
+    V->>V: Reach Consensus
+    
+    V->>N: Confirm Transaction
+    N->>U: Send Confirmation
+    U->>U: Update UI
+
+    Note over U,P: Transaction Complete
