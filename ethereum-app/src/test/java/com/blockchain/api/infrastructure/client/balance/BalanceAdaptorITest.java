@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.blockchain.api.infrastructure.client.BaseEthereumTest;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,22 @@ class BalanceAdaptorITest extends BaseEthereumTest {
 
     // then
     assertThat(ethBalance).isEqualByComparingTo(ethExpectedBalance);
+  }
+
+  @Test
+  void getAccountBalanceUSDC() {
+    // given
+    var address = "0x6bf1b0fB6B1A82fA0e42E50A798507FE8021A741";
+    stubGetUSDCBalance();
+
+    // when
+    var futureBalance = balanceAdaptor.getNonEthBalance(address).join();
+    var usdcBalance =
+        new BigDecimal(futureBalance)
+            .divide(BigDecimal.valueOf(1_000_000), 6, RoundingMode.UNNECESSARY);
+    var expectedUsdcBalance = new BigDecimal("80000.800882");
+
+    // then
+    assertThat(usdcBalance).isEqualByComparingTo(expectedUsdcBalance);
   }
 }

@@ -2,9 +2,12 @@ package com.blockchain.api.infrastructure.client;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.blockchain.api.domain.service.balance.BalanceClient;
 import com.blockchain.api.domain.service.transfer.TransferClient;
 import com.blockchain.api.domain.service.transfer.TransferRequest;
 import com.blockchain.api.domain.service.transfer.TransferService;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,8 @@ public class EthereumOperationsITest {
   @Autowired private TransferClient transferClient;
 
   @Autowired private TransferService transferService;
+
+  @Autowired private BalanceClient balanceClient;
 
   @Test
   void getNonce() {
@@ -41,6 +46,17 @@ public class EthereumOperationsITest {
 
     // then
     assertNotNull(gasPrice);
+  }
+
+  @Test
+  void getBalance() {
+    // address
+    var address = "0x6bf1b0fB6B1A82fA0e42E50A798507FE8021A741";
+
+    var balance = balanceClient.getNonEthBalance(address).join();
+    log.info(
+        "balance usdc {}",
+        new BigDecimal(balance).divide(BigDecimal.valueOf(1_000_000), 6, RoundingMode.UNNECESSARY));
   }
 
   @Test
