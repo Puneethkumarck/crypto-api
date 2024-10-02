@@ -3,6 +3,7 @@ package com.blockchain.api.infrastructure.client;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.blockchain.api.domain.service.balance.BalanceClient;
+import com.blockchain.api.domain.service.balance.Contract;
 import com.blockchain.api.domain.service.transfer.TransferClient;
 import com.blockchain.api.domain.service.transfer.TransferRequest;
 import com.blockchain.api.domain.service.transfer.TransferService;
@@ -18,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @Slf4j
-@Disabled
 public class EthereumOperationsITest {
 
   @Autowired private TransferClient transferClient;
@@ -49,14 +49,25 @@ public class EthereumOperationsITest {
   }
 
   @Test
-  void getBalance() {
+  void getBalanceUSDC() {
     // address
     var address = "0x6bf1b0fB6B1A82fA0e42E50A798507FE8021A741";
 
-    var balance = balanceClient.getNonEthBalance(address).join();
+    var balance = balanceClient.getNonEthBalance(address, Contract.USDC).join();
     log.info(
         "balance usdc {}",
         new BigDecimal(balance).divide(BigDecimal.valueOf(1_000_000), 6, RoundingMode.UNNECESSARY));
+  }
+
+  @Test
+  void getBalanceUSDT() {
+    // address
+    var address = "0xDccd1E7ef46A5620081E581398d5A77bF1E9762d";
+
+    var balance = balanceClient.getNonEthBalance(address, Contract.USDT).join();
+    log.info(
+            "balance usdc {}",
+            new BigDecimal(balance).divide(BigDecimal.valueOf(1_000_000), 6, RoundingMode.UNNECESSARY));
   }
 
   @Test

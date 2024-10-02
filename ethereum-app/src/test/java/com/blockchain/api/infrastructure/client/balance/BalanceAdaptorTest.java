@@ -9,6 +9,8 @@ import static org.mockito.Mockito.*;
 import java.math.BigInteger;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+
+import com.blockchain.api.domain.service.balance.Contract;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -58,7 +60,7 @@ class BalanceAdaptorTest {
     when(ethCallRequest.sendAsync()).thenReturn(CompletableFuture.failedFuture(expectedException));
 
     // when/then
-    assertThatThrownBy(() -> balanceAdaptor.getNonEthBalance(address).join())
+    assertThatThrownBy(() -> balanceAdaptor.getNonEthBalance(address, Contract.USDC).join())
         .isInstanceOf(CompletionException.class)
         .hasCauseInstanceOf(RuntimeException.class)
         .hasMessageContaining(

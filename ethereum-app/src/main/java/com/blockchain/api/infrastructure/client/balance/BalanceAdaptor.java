@@ -5,6 +5,8 @@ import com.blockchain.api.domain.service.balance.BalanceClient;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import com.blockchain.api.domain.service.balance.Contract;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,7 +26,6 @@ import org.web3j.protocol.core.methods.request.Transaction;
 @RequiredArgsConstructor
 public class BalanceAdaptor implements BalanceClient {
 
-  private static final String USDC_CONTRACT_ADDRESS = "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8";
   private final Web3j rpcClient;
 
   @Override
@@ -40,7 +41,7 @@ public class BalanceAdaptor implements BalanceClient {
   }
 
   @Override
-  public CompletableFuture<BigInteger> getNonEthBalance(String address) {
+  public CompletableFuture<BigInteger> getNonEthBalance(String address , Contract tokenType) {
     var function =
         new Function(
             "balanceOf", List.of(new Address(address)), List.of(new TypeReference<Uint256>() {}));
@@ -48,7 +49,7 @@ public class BalanceAdaptor implements BalanceClient {
     return rpcClient
         .ethCall(
             Transaction.createEthCallTransaction(
-                address, USDC_CONTRACT_ADDRESS, FunctionEncoder.encode(function)),
+                address, tokenType.getAddress(), FunctionEncoder.encode(function)),
             DefaultBlockParameterName.LATEST)
         .sendAsync()
         .thenApply(

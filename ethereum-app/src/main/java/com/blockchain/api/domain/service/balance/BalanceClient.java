@@ -6,5 +6,5 @@ import java.util.concurrent.CompletableFuture;
 public interface BalanceClient {
   CompletableFuture<BigInteger> getBalance(String address);
 
-  CompletableFuture<BigInteger> getNonEthBalance(String address);
+  CompletableFuture<BigInteger> getNonEthBalance(String address, Contract tokenType);
 }

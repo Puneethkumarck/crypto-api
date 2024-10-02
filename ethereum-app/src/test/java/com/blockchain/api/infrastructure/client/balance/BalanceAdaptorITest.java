@@ -2,6 +2,7 @@ package com.blockchain.api.infrastructure.client.balance;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.blockchain.api.domain.service.balance.Contract;
 import com.blockchain.api.infrastructure.client.BaseEthereumTest;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -41,7 +42,7 @@ class BalanceAdaptorITest extends BaseEthereumTest {
     stubGetUSDCBalance();
 
     // when
-    var futureBalance = balanceAdaptor.getNonEthBalance(address).join();
+    var futureBalance = balanceAdaptor.getNonEthBalance(address, Contract.USDC).join();
     var usdcBalance =
         new BigDecimal(futureBalance)
             .divide(BigDecimal.valueOf(1_000_000), 6, RoundingMode.UNNECESSARY);
@@ -49,5 +50,22 @@ class BalanceAdaptorITest extends BaseEthereumTest {
 
     // then
     assertThat(usdcBalance).isEqualByComparingTo(expectedUsdcBalance);
+  }
+
+  @Test
+  void getAccountBalanceUSDT() {
+    // given
+    var address = "0xDccd1E7ef46A5620081E581398d5A77bF1E9762d";
+    stubGetUSDTBalance();
+
+    // when
+    var futureBalance = balanceAdaptor.getNonEthBalance(address, Contract.USDC).join();
+    var usdtBalance =
+            new BigDecimal(futureBalance)
+                    .divide(BigDecimal.valueOf(1_000_000), 6, RoundingMode.UNNECESSARY);
+    var expectedUsdtBalance = new BigDecimal("1995442.593467");
+
+    // then
+    assertThat(usdtBalance).isEqualByComparingTo(expectedUsdtBalance);
   }
 }

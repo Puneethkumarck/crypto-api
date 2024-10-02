@@ -54,6 +54,17 @@ public abstract class BaseEthereumTest {
                     .withBodyFile("stub/get_balance_response_usdc.json")));
   }
 
+  protected static void stubGetUSDTBalance() {
+    WIRE_MOCK_RULE.stubFor(
+            WireMock.post(WireMock.urlEqualTo("/"))
+                    .withRequestBody(WireMock.matchingJsonPath("$.method", WireMock.equalTo("eth_call")))
+                    .willReturn(
+                            WireMock.aResponse()
+                                    .withStatus(200)
+                                    .withHeader("Content-Type", "application/json")
+                                    .withBodyFile("stub/get_balance_response_usdt.json")));
+  }
+
   protected static void stubGetNonce() {
     WIRE_MOCK_RULE.stubFor(
         WireMock.post(WireMock.urlEqualTo("/"))
